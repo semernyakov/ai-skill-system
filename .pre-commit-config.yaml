@@ -45,13 +45,3 @@ repos:
     hooks:
       - id: isort
         args: ['--profile', 'black']
-
-  # Sync AI rules before commit
-  - repo: local
-    hooks:
-      - id: sync-ai-rules
-        name: Sync AI rules to IDEs
-        entry: ./.ai/scripts/sync-all.sh
-        language: system
-        pass_filenames: false
-        always_run: true

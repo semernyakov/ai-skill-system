@@ -57,11 +57,6 @@ if [ -d ".cursor" ] || [ "$1" == "--force-cursor" ]; then
   if [ -d "$SKILLS_DIR" ]; then
     sync_dir "$SKILLS_DIR" "$CURSOR_DIR/skills" "Cursor (skills)"
   fi
-  
-  # Also copy to root for global rules
-  echo -e "${YELLOW}  → Cursor (root .mdc files)${NC}"
-  cp "$AI_DIR"/*.mdc . 2>/dev/null || true
-  echo -e "${GREEN}    ✓ Copied to root${NC}"
 else
   echo -e "${YELLOW}  ⊘ Cursor not detected (no .cursor/)${NC}"
 fi
