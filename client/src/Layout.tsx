@@ -4,8 +4,10 @@ import RulesManager from './pages/RulesManager';
 import SkillsManager from './pages/SkillsManager';
 import MCPGateway from './pages/MCPGateway';
 import Audit from './pages/Audit';
+import Sync from './pages/Sync';
+import Logs from './pages/Logs';
 
-type Page = 'dashboard' | 'rules' | 'skills' | 'mcp' | 'audit';
+type Page = 'dashboard' | 'rules' | 'skills' | 'mcp' | 'audit' | 'sync' | 'logs';
 
 export default function Layout() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -22,6 +24,10 @@ export default function Layout() {
         return <MCPGateway />;
       case 'audit':
         return <Audit />;
+      case 'sync':
+        return <Sync />;
+      case 'logs':
+        return <Logs />;
       default:
         return <Dashboard />;
     }
@@ -83,6 +89,26 @@ export default function Layout() {
             }`}
           >
             Audit
+          </button>
+          <button
+            onClick={() => setCurrentPage('sync')}
+            className={`w-full text-left px-6 py-3 ${
+              currentPage === 'sync'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            IDE Sync
+          </button>
+          <button
+            onClick={() => setCurrentPage('logs')}
+            className={`w-full text-left px-6 py-3 ${
+              currentPage === 'logs'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            Logs
           </button>
         </nav>
       </aside>
