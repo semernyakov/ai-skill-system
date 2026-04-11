@@ -1,6 +1,6 @@
 # PyCharm AI Assistant Context
 # Auto-generated from .ai/rules/
-# Last sync: Сб 11 апр 2026 20:48:46 MSK
+# Last sync: Сб 11 апр 2026 20:51:28 MSK
 
 ===================================
 INSTRUCTIONS FOR AI ASSISTANT
@@ -270,7 +270,7 @@ FILE: 003-team-protocol.mdc
 ---------------------------------------------------
 
 ---
-description: Team protocol for OmniKross AI-assisted development.
+description: Team protocol for AI-assisted development.
 globs: ["**/*"]
 alwaysApply: true
 priority: 0
@@ -300,14 +300,6 @@ Available roles:
 - Dava → Kirill-QA: implementation for security/performance review
 - Kirill-QA → Arbitr: critical findings (P0/P1)
 - Sasha → Manya: linguistic quality improvements
-
-## Compliance gate
-
-Always indicate track:
-- RU (`omnikross.ru`) — 152-ФЗ
-- Global (`omnikross.com`) — GDPR
-
-If ambiguous, ask once; default to RU MVP assumptions.
 
 
 ---------------------------------------------------

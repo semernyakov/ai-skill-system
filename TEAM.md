@@ -1,11 +1,11 @@
 ---
-description: OmniKross team protocol and role handoff model.
+description: Team protocol and role handoff model.
 globs: ["**/*"]
 alwaysApply: true
 priority: 0
 ---
 
-# TEAM.md — OmniKross Team Operating Model
+# TEAM.md — Team Operating Model
 
 ## Core principle
 
@@ -27,10 +27,3 @@ priority: 0
 3. Implementation in small steps
 4. After each step — checkpoint + approval
 5. File creation only with explicit Arbitr approval
-
-## Compliance routing
-
-- RU track (`omnikross.ru`) → 152-ФЗ
-- Global track (`omnikross.com`) → GDPR
-
-Все архитектурные и контентные решения помечать target track.
