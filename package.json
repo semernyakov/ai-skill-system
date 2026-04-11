@@ -1,0 +1,14 @@
+{
+  "name": "ai-skill-system",
+  "version": "1.0.0",
+  "description": "Cross-IDE system of rules and skills for AI-assisted development",
+  "scripts": {
+    "lint:md": "markdownlint '*.md' '**/*.md'"
+  },
+  "devDependencies": {
+    "markdownlint-cli": "^0.39.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}

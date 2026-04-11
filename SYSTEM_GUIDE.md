@@ -322,9 +322,13 @@ pip install pre-commit
 pre-commit install
 ```
 
-**Option B:** Install markdownlint-cli
+**Option B:** Install markdownlint-cli via bun
 ```bash
-npm install -g markdownlint-cli
+# Install dependencies
+bun install
+
+# Run markdown lint
+bun run lint:md
 ```
 
 Without installing these dependencies, markdown linting will not work. Configuration is ready but requires at least one dependency to activate.

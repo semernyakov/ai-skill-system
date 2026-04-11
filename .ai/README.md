@@ -19,6 +19,12 @@ Universal AI configuration for Cursor, Windsurf, and PyCharm with MCP Gateway.
 ## Setup
 
 ```bash
+# Install bun (if not already installed)
+curl -fsSL https://bun.sh/install | bash
+
+# Install dependencies
+bun install
+
 # Sync to all IDEs
 .ai/scripts/sync-all.sh
 

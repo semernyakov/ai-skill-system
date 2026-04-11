@@ -12,6 +12,16 @@ Cross-IDE system of rules and skills for AI-assisted development with MCP Gatewa
 
 ## Quick start
 
+### Installation
+
+```bash
+# Install bun (if not already installed)
+curl -fsSL https://bun.sh/install | bash
+
+# Install dependencies
+bun install
+```
+
 ### Rule synchronization
 
 ```bash
