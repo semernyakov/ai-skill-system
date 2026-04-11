@@ -60,4 +60,16 @@ async def stop_service(request: ServiceStopRequest):
 async def check_service_health(service_name: str):
     if service_name not in services_db:
         raise HTTPException(status_code=404, detail="Service not found")
-    return {"service": service_name, "status": services_db[service_name].status}
+    return {"service": service_name, "status": services_db[service_name].status, "healthy": services_db[service_name].status == ServiceStatus.RUNNING}
+
+
+@router.get("/services/health")
+async def check_all_services_health():
+    health_data = {}
+    for service_name, service in services_db.items():
+        health_data[service_name] = {
+            "healthy": service.status == ServiceStatus.RUNNING,
+            "uptime": "N/A",
+            "last_check": "N/A"
+        }
+    return health_data

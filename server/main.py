@@ -2,9 +2,12 @@
 
 from fastapi import FastAPI
 
+from server.api.v1.audit import router as audit_router
+from server.api.v1.logs import router as logs_router
 from server.api.v1.mcp import router as mcp_router
 from server.api.v1.rules import router as rules_router
 from server.api.v1.skills import router as skills_router
+from server.api.v1.sync import router as sync_router
 from server.core.config import settings
 from server.core.logging import setup_logging
 
@@ -16,6 +19,9 @@ app = FastAPI(
     debug=settings.DEBUG,
 )
 
+app.include_router(sync_router)
+app.include_router(audit_router)
+app.include_router(logs_router)
 app.include_router(rules_router)
 app.include_router(skills_router)
 app.include_router(mcp_router)

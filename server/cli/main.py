@@ -68,6 +68,18 @@ def create_rule(name, description, globs, always_apply):
             console.print(f"[red]Error: {response.status_code}[/red]")
 
 
+@rules.command("delete")
+@click.argument("rule_id")
+def delete_rule(rule_id):
+    """Delete a rule"""
+    with httpx.Client(proxy=None) as client:
+        response = client.delete(f"{API_BASE}/rules/{rule_id}")
+        if response.status_code == 204:
+            console.print(f"[green]Rule {rule_id} deleted[/green]")
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
 @cli.group()
 def skills():
     """Manage skills"""
@@ -93,6 +105,36 @@ def list_skills():
                     skill["description"][:50] + "..." if len(skill["description"]) > 50 else skill["description"]
                 )
             console.print(table)
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@skills.command("create")
+@click.option("--name", required=True, help="Skill name")
+@click.option("--description", required=True, help="Skill description")
+def create_skill(name, description):
+    """Create a new skill"""
+    data = {
+        "name": name,
+        "description": description
+    }
+    with httpx.Client(proxy=None) as client:
+        response = client.post(f"{API_BASE}/skills", json=data)
+        if response.status_code == 201:
+            skill = response.json()
+            console.print(f"[green]Skill created with ID: {skill['id']}[/green]")
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@skills.command("delete")
+@click.argument("skill_id")
+def delete_skill(skill_id):
+    """Delete a skill"""
+    with httpx.Client(proxy=None) as client:
+        response = client.delete(f"{API_BASE}/skills/{skill_id}")
+        if response.status_code == 204:
+            console.print(f"[green]Skill {skill_id} deleted[/green]")
         else:
             console.print(f"[red]Error: {response.status_code}[/red]")
 
@@ -149,6 +191,136 @@ def stop_mcp_service(service_name):
         response = client.post(f"{API_BASE}/mcp/services/stop", json={"service_name": service_name})
         if response.status_code == 200:
             console.print(f"[green]Service {service_name} stopped[/green]")
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@mcp.command("health")
+def check_mcp_health():
+    """Check health of all MCP services"""
+    with httpx.Client(proxy=None) as client:
+        response = client.get(f"{API_BASE}/mcp/services/health")
+        if response.status_code == 200:
+            health_data = response.json()
+            table = Table(title="MCP Services Health")
+            table.add_column("Name", style="cyan")
+            table.add_column("Status", style="magenta")
+            table.add_column("Uptime", style="green")
+            table.add_column("Last Check", style="yellow")
+            
+            for service, health in health_data.items():
+                status_style = "green" if health["healthy"] else "red"
+                table.add_row(
+                    service,
+                    f"[{status_style}]{'Healthy' if health['healthy'] else 'Unhealthy'}[/{status_style}]",
+                    health.get("uptime", "N/A"),
+                    health.get("last_check", "N/A")
+                )
+            console.print(table)
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@cli.group()
+def sync():
+    """IDE synchronization"""
+    pass
+
+
+@sync.command("run")
+@click.option("--force-all", is_flag=True, help="Force sync all IDEs")
+def run_sync(force_all):
+    """Trigger IDE synchronization"""
+    data = {"force_all": force_all}
+    with httpx.Client(proxy=None) as client:
+        response = client.post(f"{API_BASE}/sync", json=data)
+        if response.status_code == 200:
+            result = response.json()
+            console.print(f"[green]Sync completed[/green]")
+            console.print(f"Status: {result['status']}")
+            console.print(f"Targets: {result['targets_synced']}")
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@cli.group()
+def audit():
+    """System audit"""
+    pass
+
+
+@audit.command("run")
+@click.option("--type", "audit_type", default="security", help="Audit type: security, performance, architecture, compliance")
+def run_audit(audit_type):
+    """Run system audit"""
+    data = {"audit_type": audit_type.upper()}
+    with httpx.Client(proxy=None) as client:
+        response = client.post(f"{API_BASE}/audit/run", json=data)
+        if response.status_code == 200:
+            result = response.json()
+            console.print(f"[green]Audit completed (ID: {result['id']})[/green]")
+            console.print(f"Type: {result['audit_type']}")
+            console.print(f"Summary: {result['summary']}")
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@audit.command("results")
+def list_audit_results():
+    """List all audit results"""
+    with httpx.Client(proxy=None) as client:
+        response = client.get(f"{API_BASE}/audit/results")
+        if response.status_code == 200:
+            results = response.json()
+            table = Table(title="Audit Results")
+            table.add_column("ID", style="cyan")
+            table.add_column("Type", style="magenta")
+            table.add_column("Status", style="green")
+            table.add_column("Summary", style="yellow")
+            
+            for result in results:
+                table.add_row(
+                    str(result["id"]),
+                    result["audit_type"],
+                    result["status"],
+                    result["summary"]
+                )
+            console.print(table)
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@cli.group()
+def logs():
+    """System logs"""
+    pass
+
+
+@logs.command("view")
+@click.option("--service", help="Filter by service")
+@click.option("--level", help="Filter by level: DEBUG, INFO, WARNING, ERROR")
+@click.option("--limit", default=50, help="Number of logs to show")
+def view_logs(service, level, limit):
+    """View system logs"""
+    data = {"service": service, "level": level, "limit": limit}
+    with httpx.Client(proxy=None) as client:
+        response = client.post(f"{API_BASE}/logs", json=data)
+        if response.status_code == 200:
+            logs = response.json()
+            table = Table(title="System Logs")
+            table.add_column("Timestamp", style="cyan")
+            table.add_column("Level", style="magenta")
+            table.add_column("Service", style="green")
+            table.add_column("Message", style="yellow")
+            
+            for log in logs:
+                table.add_row(
+                    str(log["timestamp"]),
+                    log["level"],
+                    log["service"],
+                    log["message"][:50] + "..." if len(log["message"]) > 50 else log["message"]
+                )
+            console.print(table)
         else:
             console.print(f"[red]Error: {response.status_code}[/red]")
 

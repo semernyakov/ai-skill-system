@@ -42,6 +42,12 @@ export const api = {
       });
       return response.json();
     },
+    delete: async (id: number) => {
+      const response = await fetch(`${API_BASE}/skills/${id}`, {
+        method: 'DELETE',
+      });
+      return response;
+    },
   },
   mcp: {
     listServices: async () => {
@@ -61,6 +67,26 @@ export const api = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ service_name: serviceName }),
+      });
+      return response.json();
+    },
+  },
+  audit: {
+    run: async (type: string) => {
+      const response = await fetch(`${API_BASE}/audit/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audit_type: type }),
+      });
+      return response.json();
+    },
+  },
+  sync: {
+    run: async (forceAll: boolean = false) => {
+      const response = await fetch(`${API_BASE}/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force_all: forceAll }),
       });
       return response.json();
     },
