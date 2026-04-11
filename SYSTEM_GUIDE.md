@@ -117,10 +117,12 @@ workspace/iteration-1/
 
 **Роли:**
 - **Arbitr (Иван)** — final decision-maker
-- **Dava** — Frontend архитектор
-- **Manya** — UX/UI + Marketing
-- **Sasha** — Лингвист (триггеры, якоря)
-- **Кирилл** — Auditor (Security, Performance)
+- **Vasya** — Principal Software Engineer (Front)
+- **Yosya** — Principal AI/ML Engineer (Backend)
+- **Bosya** — Principal GeoOps / MlOps / DevOps Engineer
+- **Manya** — Principal UX/UI + Marketing Strategist
+- **Sanya** — Behavioral Linguistics Expert
+- **Kirill** — Security & Performance Auditor
 
 **Workflow:**
 1. Proposal (варианты + риски)

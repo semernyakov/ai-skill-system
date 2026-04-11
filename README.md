@@ -18,4 +18,4 @@ Cross-IDE система правил и skills для AI-assisted разраб�
 ## Командная модель
 
 Solo Founder + Expert Roles:
-Arbitr (Ivan), Dava, Manya, Sasha, Kirill-QA.
+Arbitr (Ivan), Vasya, Yosya, Bosya, Manya, Sanya, Kirill.
