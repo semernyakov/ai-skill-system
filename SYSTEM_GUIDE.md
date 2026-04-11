@@ -15,10 +15,10 @@ ai-skill-system/
 │   │   ├── 000-core.mdc          # Core правила (token economy)
 │   │   ├── 001-agentic.mdc       # Agentic системы
 │   │   ├── 002-docker.mdc        # Docker стандарты
-│   │   ├── 003-k8s.mdc           # Kubernetes стандарты
 │   │   ├── 003-team-protocol.mdc # Team protocol
-│   │   ├── 004-cicd.mdc          # CI/CD стандарты
-│   │   └── 005-api.mdc           # API стандарты
+│   │   ├── 004-k8s.mdc           # Kubernetes стандарты
+│   │   ├── 005-cicd.mdc          # CI/CD стандарты
+│   │   └── 006-api.mdc           # API стандарты
 │   ├── skills/                    # Skill Creator System
 │   │   ├── SKILL_CREATOR.md      # Агент для создания skills
 │   │   ├── SKILL_TEMPLATE.md     # Шаблон для skills

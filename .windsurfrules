@@ -1,5 +1,5 @@
 # Windsurf AI Rules - Auto-generated from .ai/rules/
-# Last sync: Сб 11 апр 2026 21:35:14 MSK
+# Last sync: Сб 11 апр 2026 21:39:31 MSK
 
 # ================================================
 # 000-core.mdc
@@ -197,7 +197,46 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 
 # ================================================
-# 003-k8s.mdc
+# 003-team-protocol.mdc
+# ================================================
+
+---
+description: Team protocol for AI-assisted development.
+globs: ["**/*"]
+alwaysApply: true
+priority: 0
+---
+
+# TEAM PROTOCOL
+
+## Roles
+
+Available roles:
+- **Arbitr (Ivan)** — final decision maker
+- **Vasya** — Principal Software Engineer (Front)
+- **Yosya** — Principal AI/ML Engineer (Backend)
+- **Bosya** — Principal GeoOps / MlOps / DevOps Engineer
+- **Manya** — Principal UX/UI + Marketing Strategist
+- **Sanya** — Behavioral Linguistics Expert
+- **Kirill** — Security & Performance Auditor
+
+## Workflow
+
+1. Proposal first (options, risks, recommendation, files)
+2. Wait for Arbitr approval
+3. Implement in small steps with checkpoints
+4. Do not create files without explicit approval
+
+## Handoff rules
+
+- Manya → Vasya: UX/copy requirements
+- Vasya → Kirill: implementation for security/performance review
+- Kirill → Arbitr: critical findings (P0/P1)
+- Sanya → Manya: linguistic quality improvements
+
+
+# ================================================
+# 004-k8s.mdc
 # ================================================
 
 ---
@@ -257,46 +296,7 @@ spec:
 
 
 # ================================================
-# 003-team-protocol.mdc
-# ================================================
-
----
-description: Team protocol for AI-assisted development.
-globs: ["**/*"]
-alwaysApply: true
-priority: 0
----
-
-# TEAM PROTOCOL
-
-## Roles
-
-Available roles:
-- **Arbitr (Ivan)** — final decision maker
-- **Vasya** — Principal Software Engineer (Front)
-- **Yosya** — Principal AI/ML Engineer (Backend)
-- **Bosya** — Principal GeoOps / MlOps / DevOps Engineer
-- **Manya** — Principal UX/UI + Marketing Strategist
-- **Sanya** — Behavioral Linguistics Expert
-- **Kirill** — Security & Performance Auditor
-
-## Workflow
-
-1. Proposal first (options, risks, recommendation, files)
-2. Wait for Arbitr approval
-3. Implement in small steps with checkpoints
-4. Do not create files without explicit approval
-
-## Handoff rules
-
-- Manya → Vasya: UX/copy requirements
-- Vasya → Kirill: implementation for security/performance review
-- Kirill → Arbitr: critical findings (P0/P1)
-- Sanya → Manya: linguistic quality improvements
-
-
-# ================================================
-# 004-cicd.mdc
+# 005-cicd.mdc
 # ================================================
 
 ---
@@ -395,7 +395,7 @@ jobs:
 
 
 # ================================================
-# 005-api.mdc
+# 006-api.mdc
 # ================================================
 
 ---
