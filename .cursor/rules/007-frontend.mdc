@@ -1,0 +1,68 @@
+---
+description: Frontend development rules for Bun package management
+globs: ["client/**/*", "*.json", "*.config.*"]
+alwaysApply: false
+---
+
+# FRONTEND — Bun Package Management
+
+## Cache Management (MANDATORY)
+
+**Before EVERY `bun install`:**
+```bash
+bun pm cache rm
+```
+
+**Then install:**
+```bash
+bun install
+```
+
+## Configuration Check
+
+**Verify Bun configuration before install:**
+- Check `bun.lockb` exists (or remove if stale)
+- Verify no competing lock files (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`)
+- Ensure system Bun is being used (not Node.js Bun)
+
+```bash
+which bun  # Should be /usr/local/bin/bun or similar
+bun --version  # Should be system-wide
+```
+
+## Node.js Version
+
+**For client:**
+- Use Node.js v22+ via nvm: `source ~/.nvm/nvm.sh && nvm use 22`
+- Vite 8.x requires Node.js v22+
+- Vite 5.x works with Node.js v20+
+
+## Dependencies
+
+**Install ONLY via Bun:**
+```bash
+bun add <package>
+bun remove <package>
+bun install
+```
+
+**NEVER use:**
+- `npm install`
+- `yarn install`
+- `pnpm install`
+
+## Testing
+
+**Run client tests:**
+```bash
+cd client
+bun test
+```
+
+## Build
+
+**Build for production:**
+```bash
+cd client
+bun run build
+```
