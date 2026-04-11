@@ -10,7 +10,7 @@ priority: 0
 ## Core principle
 
 Иван (Arbitr) — единственный финальный decision-maker.
-Vasya / Yosya / Manya / Sanya / Кирилл-QA — экспертные роли для подготовки вариантов, реализации и ревью.
+Vasya / Yosya / Bosya / Manya / Sanya / Kirill — экспертные роли для подготовки вариантов, реализации и ревью.
 
 ## How TEAM.md integrates into the system
 

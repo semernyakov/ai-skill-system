@@ -1,6 +1,6 @@
 # PyCharm AI Assistant Context
 # Auto-generated from .ai/rules/
-# Last sync: Сб 11 апр 2026 21:17:46 MSK
+# Last sync: Сб 11 апр 2026 21:25:07 MSK
 
 ===================================
 INSTRUCTIONS FOR AI ASSISTANT
@@ -284,9 +284,10 @@ Available roles:
 - **Arbitr (Ivan)** — final decision maker
 - **Vasya** — Principal Software Engineer (Front)
 - **Yosya** — Principal AI/ML Engineer (Backend)
+- **Bosya** — Principal GeoOps / MlOps / DevOps Engineer
 - **Manya** — Principal UX/UI + Marketing Strategist
 - **Sanya** — Behavioral Linguistics Expert
-- **Kirill-QA** — Security & Performance Auditor
+- **Kirill** — Security & Performance Auditor
 
 ## Workflow
 
@@ -298,8 +299,8 @@ Available roles:
 ## Handoff rules
 
 - Manya → Vasya: UX/copy requirements
-- Vasya → Kirill-QA: implementation for security/performance review
-- Kirill-QA → Arbitr: critical findings (P0/P1)
+- Vasya → Kirill: implementation for security/performance review
+- Kirill → Arbitr: critical findings (P0/P1)
 - Sanya → Manya: linguistic quality improvements
 
 
