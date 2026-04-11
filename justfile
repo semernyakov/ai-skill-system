@@ -50,18 +50,20 @@ server-clear-redis-cache:
     uv run ai-skill-system-clear-redis-cache
 
 server-help:
-    @echo "Server commands:"
-    @echo "  just server-dev              - Run server (main.py)"
-    @echo "  just server-dev-reload        - Run server with auto-reload"
-    @echo "  just server-tui              - Run TUI"
-    @echo "  just server-cli <args>       - Run CLI with args"
-    @echo "  just server-test             - Run tests"
-    @echo "  just server-lint             - Run linter"
-    @echo "  just server-format           - Format code"
-    @echo "  just server-sync             - Sync dependencies"
-    @echo "  just server-clear-cache      - Clear all caches"
-    @echo "  just server-clear-python-cache   - Clear Python cache"
-    @echo "  just server-clear-redis-cache   - Clear Redis cache"
+    @echo "🖥️  Server Commands:"
+    @echo "  just server-dev           - Launch backend"
+    @echo "  just server-dev-reload     - Hot-reload backend"
+    @echo "  just server-tui           - Open terminal UI"
+    @echo "  just server-cli <args>    - Run CLI commands"
+    @echo ""
+    @echo "🔧 Maintenance:"
+    @echo "  just server-test          - Run tests"
+    @echo "  just server-lint          - Check code quality"
+    @echo "  just server-format        - Format code"
+    @echo ""
+    @echo "📦 Dependencies:"
+    @echo "  just server-sync          - Install dependencies"
+    @echo "  just server-clear-cache   - Clear all caches"
 
 # Client commands
 client-dev:
@@ -89,11 +91,15 @@ client-clear-cache:
     bun pm cache rm
 
 client-help:
-    @echo "Client commands:"
-    @echo "  just client-dev           - Run dev server"
+    @echo "🌐 Client Commands:"
+    @echo "  just client-dev           - Start dev server"
     @echo "  just client-build         - Build for production"
     @echo "  just client-preview       - Preview production build"
-    @echo "  just client-lint          - Run linter"
+    @echo ""
+    @echo "🔧 Maintenance:"
+    @echo "  just client-lint          - Check code quality"
+    @echo ""
+    @echo "📦 Dependencies:"
     @echo "  just client-sync          - Install dependencies"
     @echo "  just client-clear-cache   - Clear bun cache"
 
@@ -108,14 +114,18 @@ db-migrate:
 
 db-reset:
     #!/usr/bin/env bash
-    echo "WARNING: This will delete the database and all data!"
-    read -p "Are you sure? (yes/no): " confirmation
+    echo "⚠️  WARNING: This will delete the database and all data!"
+    echo "Type 'yes' to confirm, or anything else to cancel."
+    read -p "Are you sure? " confirmation
     if [ "$confirmation" != "yes" ]; then
-        echo "Database reset cancelled"
+        echo "❌ Database reset cancelled"
         exit 0
     fi
+    echo "🗑️  Deleting database..."
     rm -f server/ai_skill_system.db
+    echo "🔄 Reinitializing database..."
     @just db-init
+    echo "✅ Database reset complete!"
 
 # MCP Gateway commands
 mcp-start:
@@ -123,7 +133,7 @@ mcp-start:
     .ai/scripts/start-mcp-gateway.sh
 
 mcp-help:
-    @echo "MCP commands:"
+    @echo "🔌 MCP Gateway:"
     @echo "  just mcp-start     - Start MCP Gateway"
 
 # Rules sync commands
@@ -136,66 +146,93 @@ sync-cursor:
     .ai/scripts/sync-all.sh
 
 # System commands
+start:
+    #!/usr/bin/env bash
+    set -e
+    echo "🚀 Quick Start: Setting up AI Skill System..."
+    just system-init
+    just system-run
+
 install:
-    echo "Installing dependencies..."
+    echo "📦 Installing dependencies..."
     just server-sync
     just client-sync
 
 clean:
-    echo "Cleaning caches..."
+    echo "🧹 Cleaning caches..."
     just server-clear-cache
     just client-clear-cache
 
 system-init:
-    echo "System initialization..."
-    echo "1. Installing dependencies..."
+    echo "Let's set up your AI Skill System..."
+    echo ""
+    echo "📦 First, we'll grab the dependencies..."
     just server-sync || { echo "Server sync failed"; exit 1; }
     just client-sync || { echo "Client sync failed"; exit 1; }
-    echo "2. Initializing database..."
-    just db-init || { echo "Database initialization failed"; exit 1; }
-    echo "3. System initialized successfully!"
+    echo "✅ Dependencies installed!"
     echo ""
-    echo "Run 'just system-run' to start the development environment"
+    echo "🗄️  Now, let's set up the database..."
+    just db-init || { echo "Database initialization failed"; exit 1; }
+    echo "✅ Database ready!"
+    echo ""
+    echo "🎉 You're all set! Run 'just start' or 'just system-run' to begin."
 
 system-run:
     #!/usr/bin/env bash
     set -e
-    echo "Starting system..."
-    echo "1. Starting server with auto-reload..."
+    echo "🚀 Launching AI Skill System..."
+    echo ""
+    echo "🖥️  Starting backend with hot-reload..."
     just server-dev-reload &
     SERVER_PID=$!
-    echo "2. Waiting for server to be healthy..."
+    echo "⏳ Waiting for backend to be ready..."
     sleep 3
     if ! curl -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
-        echo "Server health check failed"
+        echo "❌ Backend health check failed"
         kill $SERVER_PID 2>/dev/null || true
         exit 1
     fi
-    echo "Server is healthy"
-    echo "3. Starting client..."
+    echo "✅ Backend is healthy!"
+    echo ""
+    echo "🌐 Starting frontend..."
     just client-dev
     kill $SERVER_PID 2>/dev/null || true
 
 dev:
     #!/usr/bin/env bash
     set -e
-    echo "Starting development environment..."
-    echo "1. Starting server with auto-reload..."
+    echo "🛠️  Starting dev environment..."
+    echo ""
+    echo "🖥️  Launching backend..."
     just server-dev-reload &
     SERVER_PID=$!
-    echo "2. Starting client..."
+    echo "🌐 Launching frontend..."
     just client-dev
     kill $SERVER_PID 2>/dev/null || true
 
 help:
-    @echo "AI Skill System - Just Commands"
+    @echo "🚀 AI Skill System - Quick Start"
     @echo ""
-    @echo "Server: just server-help"
-    @echo "Client: just client-help"
-    @echo "Database: just db-init, just db-migrate, just db-reset"
-    @echo "MCP: just mcp-help"
-    @echo "Sync: just sync-all"
-    @echo "Install: just install"
-    @echo "Clean: just clean"
-    @echo "System: just system-init (init + db), just system-run (start all)"
-    @echo "Dev: just dev"
+    @echo "  just start                 - Setup and run everything (recommended)"
+    @echo ""
+    @echo "🛠️  Development:"
+    @echo "  just dev                   - Start dev environment"
+    @echo "  just server-help           - Backend commands"
+    @echo "  just client-help           - Frontend commands"
+    @echo ""
+    @echo "🗄️  Database:"
+    @echo "  just db-init               - Initialize database"
+    @echo "  just db-migrate            - Run migrations"
+    @echo "  just db-reset              - Reset database (destructive)"
+    @echo ""
+    @echo "🔌 MCP Gateway:"
+    @echo "  just mcp-help              - MCP commands"
+    @echo ""
+    @echo "📦 Setup & Maintenance:"
+    @echo "  just install               - Install dependencies"
+    @echo "  just clean                 - Clear caches"
+    @echo "  just system-init           - Full system initialization"
+    @echo "  just system-run            - Start all services"
+    @echo ""
+    @echo "🔄 Sync:"
+    @echo "  just sync-all              - Sync rules to all IDEs"
