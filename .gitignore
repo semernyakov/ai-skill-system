@@ -30,7 +30,6 @@ ENV/
 env/
 
 # IDE specific
-.idea/
 *.swp
 *.swo
 *~

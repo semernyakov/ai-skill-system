@@ -73,7 +73,7 @@ if [ -d ".windsurf" ] || [ "$1" == "--force-windsurf" ]; then
   echo -e "${YELLOW}  → Windsurf (.windsurfrules)${NC}"
   {
     echo "# Windsurf AI Rules - Auto-generated from .ai/rules/"
-    echo "# Last sync: $(date)"
+    echo "# Last sync: $(LC_ALL=C date)"
     echo ""
     
     for file in "$AI_DIR"/*.mdc; do
@@ -102,7 +102,7 @@ if [ -d ".idea" ] || [ "$1" == "--force-pycharm" ] || [ "$1" == "--force-all" ];
   {
     echo "# PyCharm AI Assistant Context"
     echo "# Auto-generated from .ai/rules/"
-    echo "# Last sync: $(date)"
+    echo "# Last sync: $(LC_ALL=C date)"
     echo ""
     echo "==================================="
     echo "INSTRUCTIONS FOR AI ASSISTANT"
