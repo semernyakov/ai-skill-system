@@ -6,7 +6,10 @@
     "lint:md": "markdownlint '*.md' '**/*.md'"
   },
   "devDependencies": {
-    "markdownlint-cli": "^0.39.0"
+    "autoprefixer": "^10.4.27",
+    "markdownlint-cli": "^0.39.0",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2"
   },
   "engines": {
     "bun": ">=1.0.0"

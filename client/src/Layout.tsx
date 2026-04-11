@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import RulesManager from './pages/RulesManager';
 import SkillsManager from './pages/SkillsManager';
@@ -7,32 +7,25 @@ import Audit from './pages/Audit';
 import Sync from './pages/Sync';
 import Logs from './pages/Logs';
 
-type Page = 'dashboard' | 'rules' | 'skills' | 'mcp' | 'audit' | 'sync' | 'logs';
+function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+
+  return (
+    <Link
+      to={to}
+      className={`w-full text-left px-6 py-3 block ${
+        isActive
+          ? 'bg-blue-500 text-white'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function Layout() {
-  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'rules':
-        return <RulesManager />;
-      case 'skills':
-        return <SkillsManager />;
-      case 'mcp':
-        return <MCPGateway />;
-      case 'audit':
-        return <Audit />;
-      case 'sync':
-        return <Sync />;
-      case 'logs':
-        return <Logs />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <aside className="w-64 bg-white dark:bg-gray-800 shadow-lg">
@@ -40,80 +33,25 @@ export default function Layout() {
           <h1 className="text-xl font-bold text-gray-800 dark:text-white">AI Skill System</h1>
         </div>
         <nav className="mt-6">
-          <button
-            onClick={() => setCurrentPage('dashboard')}
-            className={`w-full text-left px-6 py-3 ${
-              currentPage === 'dashboard'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => setCurrentPage('rules')}
-            className={`w-full text-left px-6 py-3 ${
-              currentPage === 'rules'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            Rules Manager
-          </button>
-          <button
-            onClick={() => setCurrentPage('skills')}
-            className={`w-full text-left px-6 py-3 ${
-              currentPage === 'skills'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            Skills Manager
-          </button>
-          <button
-            onClick={() => setCurrentPage('mcp')}
-            className={`w-full text-left px-6 py-3 ${
-              currentPage === 'mcp'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            MCP Gateway
-          </button>
-          <button
-            onClick={() => setCurrentPage('audit')}
-            className={`w-full text-left px-6 py-3 ${
-              currentPage === 'audit'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            Audit
-          </button>
-          <button
-            onClick={() => setCurrentPage('sync')}
-            className={`w-full text-left px-6 py-3 ${
-              currentPage === 'sync'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            IDE Sync
-          </button>
-          <button
-            onClick={() => setCurrentPage('logs')}
-            className={`w-full text-left px-6 py-3 ${
-              currentPage === 'logs'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            Logs
-          </button>
+          <NavLink to="/">Dashboard</NavLink>
+          <NavLink to="/rules">Rules Manager</NavLink>
+          <NavLink to="/skills">Skills Manager</NavLink>
+          <NavLink to="/mcp">MCP Gateway</NavLink>
+          <NavLink to="/audit">Audit</NavLink>
+          <NavLink to="/sync">IDE Sync</NavLink>
+          <NavLink to="/logs">Logs</NavLink>
         </nav>
       </aside>
       <main className="flex-1">
-        {renderPage()}
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/rules" element={<RulesManager />} />
+          <Route path="/skills" element={<SkillsManager />} />
+          <Route path="/mcp" element={<MCPGateway />} />
+          <Route path="/audit" element={<Audit />} />
+          <Route path="/sync" element={<Sync />} />
+          <Route path="/logs" element={<Logs />} />
+        </Routes>
       </main>
     </div>
   );

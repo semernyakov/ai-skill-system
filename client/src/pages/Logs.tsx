@@ -20,7 +20,7 @@ export default function Logs() {
   const loadLogs = async () => {
     setLoading(true);
     try {
-      const data = await api.viewLogs(filter);
+      const data = await api.logs.view(filter);
       setLogs(data);
     } catch (error) {
       console.error('Failed to load logs:', error);

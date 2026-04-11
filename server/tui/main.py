@@ -1,12 +1,93 @@
 """AI Skill System TUI"""
 
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, Vertical
-from textual.widgets import Header, Footer, Static, Button, DataTable, Input, Label
-from textual.containers import Container
+from textual.containers import Horizontal, Vertical, Container
+from textual.widgets import Header, Footer, Static, Button, DataTable, Input, Label, ListView, ListItem
+from textual.screen import ModalScreen
+from textual import on
 import httpx
 
 API_BASE = "http://127.0.0.1:8000/api/v1"
+
+
+class CreateRuleScreen(ModalScreen):
+    """Modal screen for creating a new rule"""
+
+    def compose(self) -> ComposeResult:
+        yield Container(
+            Static("Create New Rule", id="modal-title"),
+            Label("Name:"),
+            Input(placeholder="Rule name", id="rule-name"),
+            Label("Description:"),
+            Input(placeholder="Rule description", id="rule-description"),
+            Horizontal(
+                Button("Create", id="create-btn", variant="primary"),
+                Button("Cancel", id="cancel-btn"),
+            )
+        )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "create-btn":
+            name = self.query_one("#rule-name").value
+            description = self.query_one("#rule-description").value
+            if name and description:
+                try:
+                    with httpx.Client(proxy=None) as client:
+                        response = client.post(f"{API_BASE}/rules", json={
+                            "name": name,
+                            "description": description,
+                            "globs": [],
+                            "always_apply": False
+                        })
+                        if response.status_code == 200:
+                            self.dismiss("created")
+                        else:
+                            self.dismiss(f"Error: {response.status_code}")
+                except Exception as e:
+                    self.dismiss(f"Error: {e}")
+            else:
+                self.dismiss("Please fill all fields")
+        else:
+            self.dismiss("cancelled")
+
+
+class CreateSkillScreen(ModalScreen):
+    """Modal screen for creating a new skill"""
+
+    def compose(self) -> ComposeResult:
+        yield Container(
+            Static("Create New Skill", id="modal-title"),
+            Label("Name:"),
+            Input(placeholder="Skill name", id="skill-name"),
+            Label("Description:"),
+            Input(placeholder="Skill description", id="skill-description"),
+            Horizontal(
+                Button("Create", id="create-btn", variant="primary"),
+                Button("Cancel", id="cancel-btn"),
+            )
+        )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "create-btn":
+            name = self.query_one("#skill-name").value
+            description = self.query_one("#skill-description").value
+            if name and description:
+                try:
+                    with httpx.Client(proxy=None) as client:
+                        response = client.post(f"{API_BASE}/skills", json={
+                            "name": name,
+                            "description": description
+                        })
+                        if response.status_code == 200:
+                            self.dismiss("created")
+                        else:
+                            self.dismiss(f"Error: {response.status_code}")
+                except Exception as e:
+                    self.dismiss(f"Error: {e}")
+            else:
+                self.dismiss("Please fill all fields")
+        else:
+            self.dismiss("cancelled")
 
 
 class SkillSystemTUI(App):
@@ -18,23 +99,117 @@ class SkillSystemTUI(App):
         ("s", "show_skills", "Skills"),
         ("m", "show_mcp", "MCP Gateway"),
         ("a", "show_audit", "Audit"),
+        ("l", "show_logs", "Logs"),
+        ("c", "create_item", "Create"),
         ("q", "quit", "Quit"),
     ]
+
+    CSS = """
+    #content {
+        height: 1fr;
+    }
+    #modal-title {
+        text-align: center;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    Container {
+        padding: 2;
+    }
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.current_screen = "dashboard"
 
     def compose(self) -> ComposeResult:
         yield Header()
         yield Vertical(
             Static("AI Skill System Dashboard", id="title"),
             Horizontal(
-                Vertical(Static("Press keys to navigate:", id="help")),
-                Vertical(Static("[d] Dashboard  [r] Rules  [s] Skills  [m] MCP  [a] Audit  [q] Quit", id="shortcuts")),
+                Vertical(Static("Keys:", id="help")),
+                Vertical(Static("[d] Dashboard  [r] Rules  [s] Skills  [m] MCP  [a] Audit  [l] Logs  [c] Create  [q] Quit", id="shortcuts")),
             ),
             Container(Static(id="content")),
+            Horizontal(
+                Button("Create New", id="create-btn"),
+                Button("Refresh", id="refresh-btn"),
+            ),
         )
         yield Footer()
 
     def action_show_dashboard(self) -> None:
+        self.current_screen = "dashboard"
         self.query_one("#title").update("AI Skill System Dashboard")
+        self.query_one("#create-btn").display = False
+        self._load_dashboard()
+
+    def action_show_rules(self) -> None:
+        self.current_screen = "rules"
+        self.query_one("#title").update("Rules Manager")
+        self.query_one("#create-btn").display = True
+        self._load_rules()
+
+    def action_show_skills(self) -> None:
+        self.current_screen = "skills"
+        self.query_one("#title").update("Skills Manager")
+        self.query_one("#create-btn").display = True
+        self._load_skills()
+
+    def action_show_mcp(self) -> None:
+        self.current_screen = "mcp"
+        self.query_one("#title").update("MCP Gateway")
+        self.query_one("#create-btn").display = False
+        self._load_mcp()
+
+    def action_show_audit(self) -> None:
+        self.current_screen = "audit"
+        self.query_one("#title").update("System Audit")
+        self.query_one("#create-btn").display = False
+        self._load_audit()
+
+    def action_show_logs(self) -> None:
+        self.current_screen = "logs"
+        self.query_one("#title").update("System Logs")
+        self.query_one("#create-btn").display = False
+        self._load_logs()
+
+    def action_create_item(self) -> None:
+        if self.current_screen == "rules":
+            self.push_screen(CreateRuleScreen(), self._on_create_rule_closed)
+        elif self.current_screen == "skills":
+            self.push_screen(CreateSkillScreen(), self._on_create_skill_closed)
+
+    def _on_create_rule_closed(self, result) -> None:
+        if result == "created":
+            self._load_rules()
+        elif result != "cancelled":
+            self.query_one("#content").update(f"Error: {result}")
+
+    def _on_create_skill_closed(self, result) -> None:
+        if result == "created":
+            self._load_skills()
+        elif result != "cancelled":
+            self.query_one("#content").update(f"Error: {result}")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "create-btn":
+            self.action_create_item()
+        elif event.button.id == "refresh-btn":
+            if self.current_screen == "dashboard":
+                self._load_dashboard()
+            elif self.current_screen == "rules":
+                self._load_rules()
+            elif self.current_screen == "skills":
+                self._load_skills()
+            elif self.current_screen == "mcp":
+                self._load_mcp()
+            elif self.current_screen == "audit":
+                self._load_audit()
+            elif self.current_screen == "logs":
+                self._load_logs()
+
+    def _load_dashboard(self) -> None:
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
@@ -56,8 +231,7 @@ class SkillSystemTUI(App):
         except Exception as e:
             content.update(f"Error: {e}")
 
-    def action_show_rules(self) -> None:
-        self.query_one("#title").update("Rules Manager")
+    def _load_rules(self) -> None:
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
@@ -65,17 +239,16 @@ class SkillSystemTUI(App):
                 if response.status_code == 200:
                     rules = response.json()
                     if rules:
-                        text = "\n".join([f"• {r['name']}: {r['description'][:40]}..." for r in rules])
-                        content.update(f"Rules ({len(rules)}):\n\n{text}")
+                        text = "\n".join([f"• [{r['id']}] {r['name']}: {r['description'][:50]}..." for r in rules])
+                        content.update(f"Rules ({len(rules)}):\n\n{text}\n\nPress [c] to create new rule")
                     else:
-                        content.update("No rules found")
+                        content.update("No rules found. Press [c] to create one.")
                 else:
                     content.update("Failed to load rules")
         except Exception as e:
             content.update(f"Error: {e}")
 
-    def action_show_skills(self) -> None:
-        self.query_one("#title").update("Skills Manager")
+    def _load_skills(self) -> None:
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
@@ -83,17 +256,16 @@ class SkillSystemTUI(App):
                 if response.status_code == 200:
                     skills = response.json()
                     if skills:
-                        text = "\n".join([f"• {s['name']}: {s['description'][:40]}..." for s in skills])
-                        content.update(f"Skills ({len(skills)}):\n\n{text}")
+                        text = "\n".join([f"• [{s['id']}] {s['name']}: {s['description'][:50]}..." for s in skills])
+                        content.update(f"Skills ({len(skills)}):\n\n{text}\n\nPress [c] to create new skill")
                     else:
-                        content.update("No skills found")
+                        content.update("No skills found. Press [c] to create one.")
                 else:
                     content.update("Failed to load skills")
         except Exception as e:
             content.update(f"Error: {e}")
 
-    def action_show_mcp(self) -> None:
-        self.query_one("#title").update("MCP Gateway")
+    def _load_mcp(self) -> None:
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
@@ -110,8 +282,7 @@ class SkillSystemTUI(App):
         except Exception as e:
             content.update(f"Error: {e}")
 
-    def action_show_audit(self) -> None:
-        self.query_one("#title").update("System Audit")
+    def _load_audit(self) -> None:
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
@@ -120,11 +291,28 @@ class SkillSystemTUI(App):
                     results = response.json()
                     if results:
                         text = "\n".join([f"• #{r['id']} - {r['audit_type']}: {r['summary']}" for r in results])
-                        content.update(f"Audit Results ({len(results)}):\n\n{text}")
+                        content.update(f"Audit Results ({len(results)}):\n\n{text}\n\nUse CLI to run audits")
                     else:
                         content.update("No audit results found. Use CLI to run audits.")
                 else:
                     content.update("Failed to load audit results")
+        except Exception as e:
+            content.update(f"Error: {e}")
+
+    def _load_logs(self) -> None:
+        content = self.query_one("#content")
+        try:
+            with httpx.Client(proxy=None) as client:
+                response = client.post(f"{API_BASE}/logs", json={"limit": 20})
+                if response.status_code == 200:
+                    logs = response.json()
+                    if logs:
+                        text = "\n".join([f"[{log['level']}] {log['service']}: {log['message'][:60]}..." for log in logs])
+                        content.update(f"Recent Logs:\n\n{text}")
+                    else:
+                        content.update("No logs found")
+                else:
+                    content.update("Failed to load logs")
         except Exception as e:
             content.update(f"Error: {e}")
 

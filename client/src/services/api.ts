@@ -91,4 +91,14 @@ export const api = {
       return response.json();
     },
   },
+  logs: {
+    view: async (filters: any = {}) => {
+      const params = new URLSearchParams();
+      if (filters.service) params.append('service', filters.service);
+      if (filters.level) params.append('level', filters.level);
+      if (filters.limit) params.append('limit', filters.limit.toString());
+      const response = await fetch(`${API_BASE}/logs?${params}`);
+      return response.json();
+    },
+  },
 };

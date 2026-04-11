@@ -1,0 +1,178 @@
+{
+  "skill_name": "system-auditor",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "audit my system",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "security"
+        },
+        {
+          "type": "contains",
+          "value": "performance"
+        },
+        {
+          "type": "contains",
+          "value": "architecture"
+        },
+        {
+          "type": "contains",
+          "value": "compliance"
+        },
+        {
+          "type": "format",
+          "value": "markdown"
+        },
+        {
+          "type": "format",
+          "value": "json"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "check for security vulnerabilities in my code",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "security"
+        },
+        {
+          "type": "contains",
+          "value": "vulnerability"
+        },
+        {
+          "type": "not_contains",
+          "value": "performance"
+        },
+        {
+          "type": "not_contains",
+          "value": "architecture"
+        },
+        {
+          "type": "format",
+          "value": "markdown"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "analyze performance bottlenecks",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "performance"
+        },
+        {
+          "type": "contains",
+          "value": "bottleneck"
+        },
+        {
+          "type": "not_contains",
+          "value": "security"
+        },
+        {
+          "type": "not_contains",
+          "value": "compliance"
+        },
+        {
+          "type": "format",
+          "value": "markdown"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "review my code architecture",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "architecture"
+        },
+        {
+          "type": "contains",
+          "value": "design"
+        },
+        {
+          "type": "not_contains",
+          "value": "security"
+        },
+        {
+          "type": "not_contains",
+          "value": "performance"
+        },
+        {
+          "type": "format",
+          "value": "markdown"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "verify GDPR compliance",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "compliance"
+        },
+        {
+          "type": "contains",
+          "value": "GDPR"
+        },
+        {
+          "type": "not_contains",
+          "value": "security"
+        },
+        {
+          "type": "not_contains",
+          "value": "performance"
+        },
+        {
+          "type": "format",
+          "value": "markdown"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "hey can you audit my system? i want to check security and performance",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "security"
+        },
+        {
+          "type": "contains",
+          "value": "performance"
+        },
+        {
+          "type": "format",
+          "value": "markdown"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "audit the empty directory",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "no files"
+        },
+        {
+          "type": "contains",
+          "value": "empty"
+        }
+      ],
+      "files": []
+    }
+  ]
+}
