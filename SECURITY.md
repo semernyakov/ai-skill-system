@@ -10,7 +10,7 @@ If you discover a security vulnerability, please report it responsibly.
 
 ### How to Report
 
-Send an email to ivan@semernyakov.com with:
+Send an email to i.s.semernyakov@yandex.ru with:
 
 - Description of the vulnerability
 - Steps to reproduce

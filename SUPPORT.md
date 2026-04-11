@@ -19,7 +19,7 @@ If you need help with the AI Skill System, here are the best ways to get support
 
 ### Direct Contact
 
-For security issues or private matters, email ivan@semernyakov.com
+For security issues or private matters, email i.s.semernyakov@yandex.ru
 
 ## Common Issues
 
