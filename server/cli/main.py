@@ -4,6 +4,10 @@ import click
 from rich.console import Console
 from rich.table import Table
 import httpx
+import shutil
+import os
+import sys
+import subprocess
 
 console = Console()
 API_BASE = "http://127.0.0.1:8000/api/v1"
@@ -414,6 +418,60 @@ def follow_logs(service):
                 console.print(f"[{log['level']}] {log['service']}: {log['message']}")
         else:
             console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@click.command()
+def clear_cache():
+    """Clear all caches (Python and Redis)"""
+    console.print("[yellow]Clearing all caches...[/yellow]")
+    clear_python_cache()
+    clear_redis_cache()
+    console.print("[green]All caches cleared[/green]")
+
+
+@click.command()
+def clear_python_cache():
+    """Clear Python __pycache__ directories"""
+    console.print("[yellow]Clearing Python cache...[/yellow]")
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    count = 0
+    for root, dirs, files in os.walk(project_root):
+        if "__pycache__" in dirs:
+            pycache_path = os.path.join(root, "__pycache__")
+            try:
+                shutil.rmtree(pycache_path)
+                console.print(f"  Removed: {pycache_path}")
+                count += 1
+            except Exception as e:
+                console.print(f"[red]Failed to remove {pycache_path}: {e}[/red]")
+    
+    console.print(f"[green]Removed {count} __pycache__ directories[/green]")
+
+
+@click.command()
+def clear_redis_cache():
+    """Clear Redis cache"""
+    console.print("[yellow]Clearing Redis cache...[/yellow]")
+    try:
+        # Try to clear Redis using redis-cli
+        result = subprocess.run(
+            ["redis-cli", "FLUSHALL"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            console.print("[green]Redis cache cleared successfully[/green]")
+        else:
+            console.print(f"[red]Failed to clear Redis cache: {result.stderr}[/red]")
+    except FileNotFoundError:
+        console.print("[yellow]redis-cli not found. Redis cache not cleared.[/yellow]")
+        console.print("[yellow]Install redis-cli or clear manually: redis-cli FLUSHALL[/yellow]")
+    except subprocess.TimeoutExpired:
+        console.print("[red]Redis command timed out[/red]")
+    except Exception as e:
+        console.print(f"[red]Error clearing Redis cache: {e}[/red]")
 
 
 if __name__ == "__main__":

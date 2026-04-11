@@ -30,6 +30,9 @@ dependencies = [
 [project.scripts]
 ai-skill-system = "server.cli.main:cli"
 ai-skill-system-tui = "server.tui.main:main"
+ai-skill-system-clear-cache = "server.cli.main:clear_cache"
+ai-skill-system-clear-python-cache = "server.cli.main:clear_python_cache"
+ai-skill-system-clear-redis-cache = "server.cli.main:clear_redis_cache"
 
 [build-system]
 requires = ["hatchling"]
