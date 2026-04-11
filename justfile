@@ -131,22 +131,19 @@ sync-cursor:
 
 # System commands
 install:
-    #!/usr/bin/env bash
     echo "Installing dependencies..."
-    @just server-sync
-    @just client-sync
+    just server-sync
+    just client-sync
 
 clean:
-    #!/usr/bin/env bash
     echo "Cleaning caches..."
-    @just server-clear-cache
-    @just client-clear-cache
+    just server-clear-cache
+    just client-clear-cache
 
 dev:
-    #!/usr/bin/env bash
     echo "Starting development environment..."
-    @just server-dev-reload &
-    @just client-dev
+    just server-dev-reload &
+    just client-dev
 
 help:
     @echo "AI Skill System - Just Commands"
