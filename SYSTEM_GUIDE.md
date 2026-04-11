@@ -37,7 +37,14 @@ ai-skill-system/
 │   │   ├── install-hooks.sh      # Git hooks
 │   │   ├── aggregate_benchmark.py # Агрегация бенчмарков
 │   │   ├── run_eval.py           # Запуск eval
-│   │   └── migrate-field-names.sh # Миграция полей
+│   │   ├── migrate-field-names.sh # Миграция полей
+│   │   └── start-mcp-gateway.sh  # Запуск MCP Gateway
+│   ├── mcp/                       # MCP Gateway
+│   │   ├── gateway.py            # FastAPI сервер
+│   │   ├── config.json           # Конфигурация сервисов
+│   │   └── services/             # Адаптеры MCP сервисов
+│   │       ├── __init__.py       # Интерфейс адаптеров
+│   │       └── filesystem.py     # Fileservice адаптер
 │   └── prompts/                   # System prompts
 ├── .cursor/                      # Cursor IDE конфигурация (автогенерируемая)
 ├── .windsurf/                    # Windsurf IDE конфигурация (автогенерируемая)
@@ -162,6 +169,38 @@ cd ai-skill-system
 1. Settings → Tools → AI Assistant
 2. Custom Instructions → Attach Context
 3. Выбрать `.idea/ai-context.txt`
+
+### MCP Gateway
+
+MCP Gateway — централизованная точка входа для MCP сервисов.
+
+#### Запуск Gateway
+
+```bash
+# Установка зависимостей
+pip install fastapi uvicorn pydantic
+
+# Запуск gateway
+./.ai/scripts/start-mcp-gateway.sh
+```
+
+Gateway будет доступен на `http://localhost:8080`
+
+#### Доступные сервисы
+
+**Filesystem Service:**
+- `POST /mcp/filesystem/invoke` — операции с файлами
+  - `read_file` — чтение файла
+  - `write_file` — запись файла
+  - `list_dir` — список директории
+  - `delete_file` — удаление файла
+
+**API Endpoints:**
+- `GET /mcp/services` — список сервисов
+- `GET /mcp/health/{service_name}` — проверка здоровья
+- `GET /mcp/{service_name}/capabilities` — возможности сервиса
+
+Подробнее: см. `MCP_GATEWAY_PROPOSAL.md`
 
 ### Редактирование правил
 
