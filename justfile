@@ -187,6 +187,12 @@ system-run:
     SERVER_PID=$!
     echo "⏳ Waiting for backend to be ready..."
     sleep 3
+    # Check if process is still running
+    if ! kill -0 $SERVER_PID 2>/dev/null; then
+        echo "❌ Backend failed to start (process died)"
+        exit 1
+    fi
+    # Check health endpoint
     if ! curl -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
         echo "❌ Backend health check failed"
         kill $SERVER_PID 2>/dev/null || true
