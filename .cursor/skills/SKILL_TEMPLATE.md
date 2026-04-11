@@ -1,12 +1,12 @@
 ---
 name: example-skill
 description: >
-  Brief description of what this skill does (80-120 words).
-  Include triggering keywords: "Use when user asks to...",
-  "Trigger on phrases like 'do X', 'help with Y'".
-  Be specific enough to avoid false positives, broad enough
-  to catch all valid use cases. Optimize for false negatives
-  over false positives—better to activate unnecessarily than miss.
+  How to [specific outcome] for [user/job-to-be-done].
+  Use this skill whenever the user mentions [domain keywords], [synonyms],
+  or describes [implicit intent], even if they do not use exact terms.
+  Trigger on phrases like "[phrase 1]", "[phrase 2]", "[phrase 3]".
+  Do not wait for perfect wording; prefer activation over misses.
+  Stay bounded by explicit non-trigger conditions below.
 ---
 
 ## Purpose
@@ -111,3 +111,10 @@ When evaluating this skill, check:
 **v1.0:** Initial version
 **v1.1:** Added handling for [edge case] after test failures
 **v1.2:** Optimized description for better triggering on [phrase type]
+
+## Pushy description checklist
+
+- Include direct trigger verbs ("use", "trigger", "apply")
+- Include synonyms and implicit intents
+- Include at least 3 realistic phrase examples
+- Include explicit non-trigger cases

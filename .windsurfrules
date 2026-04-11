@@ -1,29 +1,101 @@
 # Windsurf AI Rules - Auto-generated from .ai/rules/
-# Last sync: Сб 11 апр 2026 18:03:05 MSK
+# Last sync: Sat Apr 11 16:55:00 UTC 2026
 
 # ================================================
 # 000-core.mdc
 # ================================================
 
 ---
-description: Core rules for this project
-globs: ["**/*.py"]
+description: Core rules for AI microservices. Token-first. Always active.
+globs: ["**/*.py", "**/*.yaml", "**/*.yml", "**/*.dockerfile", "**/Dockerfile"]
 alwaysApply: true
 ---
 
-# CORE RULES
+# CORE — AI Microservices
 
-## Token Economy
-- Answer ONLY what is asked
-- Generate ONLY changed code blocks
-- Use `# ... existing ...` for unchanged sections
-- Skip docstrings on private methods
+## Token Economy (ABSOLUTE PRIORITY)
 
-## Python Standards
-- Python 3.11+
-- Type hints everywhere
-- Async-first for I/O operations
-- Pydantic v2 for models
+- Answer ONLY the question asked — zero commentary
+- Generate ONLY diff/changed blocks — never full files
+- Use `# ... existing ...` for unchanged code
+- Skip docstrings except on public API
+- Inline comments ONLY for non-obvious logic
+- No "best practices" sermons unless requested
+
+## Output Discipline
+
+**DO NOT:**
+
+- Create files without explicit request
+- Suggest project structure unprompted
+- Add CI/CD/Docker/K8s unless asked
+- Propose refactoring outside scope
+- Write git commands or commit messages
+- Generate tests without permission
+- Offer alternatives unless asked
+- Modify files outside current scope
+
+**DO:**
+
+- Minimum text, maximum signal
+- Work within current file only
+- Answer the literal question
+- Stop when done
+
+## Python Standards (non-negotiable)
+
+- Python 3.13+, type hints everywhere
+- Pydantic v2 for all models
+- Async-first: `async def` for I/O, `httpx.AsyncClient`
+- `uv` package manager, `pyproject.toml` only
+- No `requirements.txt` unless explicitly requested
+
+## Project Structure (enforce strictly)
+
+```text
+service-name/
+├── src/
+│   ├── main.py          # FastAPI app
+│   ├── core/            # config, deps, logging
+│   ├── agents/          # LLM agents
+│   ├── skills/          # reusable functions
+│   ├── api/v1/          # routers
+│   └── models/          # Pydantic schemas
+├── tests/
+├── evals/               # skill evaluations
+├── .cursor/
+│   └── rules/           # cursor rules
+├── Dockerfile
+├── pyproject.toml
+└── .env.example
+```
+
+## Error Handling (minimal)
+
+- Custom exceptions in `src/core/exceptions.py`
+- HTTP errors via `fastapi.HTTPException`
+- Log with `structlog` JSON output
+- No try/except unless error handling is essential
+
+## Runtime Defaults (apply silently)
+
+- Timeouts on all I/O (no infinite waits)
+- Exponential backoff on retries (max 3)
+- Graceful shutdown handlers
+- Do NOT add unless explicitly needed for task
+
+## Dependencies Management
+
+- `uv add <package>` for new deps
+- Lock with `uv lock`
+- Ignore: `__pycache__/`, `*.egg-info/`, `.venv/`
+
+## Code Style (enforced)
+
+- `ruff` for linting (auto-fix enabled)
+- `mypy` strict mode
+- Max line length: 100
+- No unused imports/variables
 
 
 # ================================================
@@ -182,6 +254,51 @@ spec:
 - GPU agents: `resources.limits."nvidia.com/gpu": 1` + `nodeSelector`
 - NetworkPolicy: restrict egress to only required services
 - PodDisruptionBudget: `minAvailable: 1` for critical agents
+
+
+# ================================================
+# 003-team-protocol.mdc
+# ================================================
+
+---
+description: Team protocol for OmniKross AI-assisted development.
+globs: ["**/*"]
+alwaysApply: true
+priority: 0
+---
+
+# TEAM PROTOCOL
+
+## Roles
+
+Available roles:
+- **Arbitr (Ivan)** — final decision maker
+- **Dava** — Principal Software Engineer (Front)
+- **Manya** — Principal UX/UI + Marketing Strategist
+- **Sasha** — Behavioral Linguistics Expert
+- **Kirill-QA** — Security & Performance Auditor
+
+## Workflow
+
+1. Proposal first (options, risks, recommendation, files)
+2. Wait for Arbitr approval
+3. Implement in small steps with checkpoints
+4. Do not create files without explicit approval
+
+## Handoff rules
+
+- Manya → Dava: UX/copy requirements
+- Dava → Kirill-QA: implementation for security/performance review
+- Kirill-QA → Arbitr: critical findings (P0/P1)
+- Sasha → Manya: linguistic quality improvements
+
+## Compliance gate
+
+Always indicate track:
+- RU (`omnikross.ru`) — 152-ФЗ
+- Global (`omnikross.com`) — GDPR
+
+If ambiguous, ask once; default to RU MVP assumptions.
 
 
 # ================================================
