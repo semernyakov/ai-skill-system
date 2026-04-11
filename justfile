@@ -5,9 +5,6 @@ default:
     @just --list
 
 # Server commands
-server-help:
-    @just server-help
-
 server-dev:
     #!/usr/bin/env bash
     cd server && uv run main.py
@@ -67,9 +64,6 @@ server-help:
     @echo "  just server-clear-redis-cache   - Clear Redis cache"
 
 # Client commands
-client-help:
-    @just client-help
-
 client-dev:
     #!/usr/bin/env bash
     cd client && bun run dev
