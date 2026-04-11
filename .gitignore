@@ -3,9 +3,6 @@ node_modules/
 bun.lock
 
 # IDE
-.cursor/
-.windsurf/
-.idea/
 .vscode/
 
 # Python
