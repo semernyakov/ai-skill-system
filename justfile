@@ -108,6 +108,12 @@ db-migrate:
 
 db-reset:
     #!/usr/bin/env bash
+    echo "WARNING: This will delete the database and all data!"
+    read -p "Are you sure? (yes/no): " confirmation
+    if [ "$confirmation" != "yes" ]; then
+        echo "Database reset cancelled"
+        exit 0
+    fi
     rm -f server/ai_skill_system.db
     @just db-init
 
@@ -143,25 +149,43 @@ clean:
 system-init:
     echo "System initialization..."
     echo "1. Installing dependencies..."
-    just server-sync
-    just client-sync
+    just server-sync || { echo "Server sync failed"; exit 1; }
+    just client-sync || { echo "Client sync failed"; exit 1; }
     echo "2. Initializing database..."
-    just db-init
+    just db-init || { echo "Database initialization failed"; exit 1; }
     echo "3. System initialized successfully!"
     echo ""
     echo "Run 'just system-run' to start the development environment"
 
 system-run:
+    #!/usr/bin/env bash
+    set -e
     echo "Starting system..."
     echo "1. Starting server with auto-reload..."
     just server-dev-reload &
-    echo "2. Starting client..."
+    SERVER_PID=$!
+    echo "2. Waiting for server to be healthy..."
+    sleep 3
+    if ! curl -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
+        echo "Server health check failed"
+        kill $SERVER_PID 2>/dev/null || true
+        exit 1
+    fi
+    echo "Server is healthy"
+    echo "3. Starting client..."
     just client-dev
+    kill $SERVER_PID 2>/dev/null || true
 
 dev:
+    #!/usr/bin/env bash
+    set -e
     echo "Starting development environment..."
+    echo "1. Starting server with auto-reload..."
     just server-dev-reload &
+    SERVER_PID=$!
+    echo "2. Starting client..."
     just client-dev
+    kill $SERVER_PID 2>/dev/null || true
 
 help:
     @echo "AI Skill System - Just Commands"
