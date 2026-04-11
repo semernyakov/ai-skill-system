@@ -1,0 +1,10 @@
+# Ignore generated/temp files
+*.pyc
+__pycache__/
+.DS_Store
+
+# Keep structure
+!rules/
+!skills/
+!prompts/
+!scripts/

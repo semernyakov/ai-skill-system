@@ -1,0 +1,113 @@
+---
+name: example-skill
+description: >
+  Brief description of what this skill does (80-120 words).
+  Include triggering keywords: "Use when user asks to...",
+  "Trigger on phrases like 'do X', 'help with Y'".
+  Be specific enough to avoid false positives, broad enough
+  to catch all valid use cases. Optimize for false negatives
+  over false positives—better to activate unnecessarily than miss.
+---
+
+## Purpose
+
+One sentence: what does this skill enable Claude to do?
+
+## When to Use
+
+Trigger conditions:
+- User asks to [specific action]
+- Query contains keywords: "X", "Y", "Z"
+- Context suggests [specific scenario]
+
+Do NOT trigger when:
+- [Similar but different intent]
+- [Out of scope scenarios]
+
+## Instructions
+
+Step-by-step, imperative style:
+
+1. **Validate Input**
+   - Check for required fields: X, Y, Z
+   - If missing, ask user: "I need [specific info] to proceed"
+   - Handle edge cases: empty input, malformed data
+
+2. **Process**
+   - Do [concrete action]
+   - Use [specific format/tool]
+   - Apply [specific logic]
+   
+   **Why this matters:** [brief context on intent]
+
+3. **Generate Output**
+   - Format as [json|markdown|svg|etc]
+   - Include [required elements]
+   - Structure like:
+   ```
+   [show exact template or example]
+   ```
+
+## Output Format
+
+**Example output:**
+```
+[Paste exact example of good output]
+```
+
+**Required elements:**
+- Element A: [purpose]
+- Element B: [purpose]
+- Element C: [purpose]
+
+**Formatting rules:**
+- Use [specific syntax]
+- Avoid [anti-patterns]
+- Prefer [best practice] because [reason]
+
+## Edge Cases
+
+Handle gracefully:
+- **Empty input:** Return helpful error message
+- **Invalid format:** Suggest correction
+- **Missing dependencies:** Check for [X], fail fast if unavailable
+- **Partial data:** Work with what's available, note limitations
+
+## Token Optimization
+
+- Load heavy references from `references/` only if needed
+- Use cached prompts for repeated patterns
+- Prefer structured outputs (JSON schema) over free text
+- Stream long responses (>500 tokens)
+
+## Examples
+
+### Example 1: [Scenario]
+**Input:** [realistic user query]
+**Output:** [expected result]
+
+### Example 2: [Edge case]
+**Input:** [tricky query]
+**Output:** [how to handle]
+
+## References
+
+External resources (loaded on-demand):
+- `references/schema.json` — Data format specification
+- `references/examples.md` — Additional examples
+- `scripts/helper.py` — Executable utility (if deterministic logic)
+
+## Testing Assertions
+
+When evaluating this skill, check:
+- [ ] Output contains [required element]
+- [ ] Format is valid [json|markdown|etc]
+- [ ] No hallucinated data (only use provided context)
+- [ ] Handles edge case: [specific scenario]
+- [ ] Token usage ≤ [budget]
+
+## Iteration Notes
+
+**v1.0:** Initial version
+**v1.1:** Added handling for [edge case] after test failures
+**v1.2:** Optimized description for better triggering on [phrase type]

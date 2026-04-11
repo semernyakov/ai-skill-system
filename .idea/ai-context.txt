@@ -1,0 +1,749 @@
+# PyCharm AI Assistant Context
+# Auto-generated from .ai/rules/
+# Last sync: Сб 11 апр 2026 18:03:05 MSK
+
+===================================
+INSTRUCTIONS FOR AI ASSISTANT
+===================================
+
+These rules apply to ALL code generation in this project.
+Read carefully and follow strictly.
+
+
+---------------------------------------------------
+FILE: 000-core.mdc
+---------------------------------------------------
+
+---
+description: Core rules for this project
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# CORE RULES
+
+## Token Economy
+- Answer ONLY what is asked
+- Generate ONLY changed code blocks
+- Use `# ... existing ...` for unchanged sections
+- Skip docstrings on private methods
+
+## Python Standards
+- Python 3.11+
+- Type hints everywhere
+- Async-first for I/O operations
+- Pydantic v2 for models
+
+
+---------------------------------------------------
+FILE: 001-agentic.mdc
+---------------------------------------------------
+
+---
+description: Rules for building AI Agents with LLM integrations (OpenAI, Anthropic, LangChain, LangGraph).
+globs: ["**/agents/**/*.py", "**/skills/**/*.py", "**/tools/**/*.py"]
+alwaysApply: false
+---
+
+# AGENTIC SYSTEMS
+
+## Agent Architecture
+- Always use `BaseAgent` abstract class from `app/agents/base.py`
+- Each agent: single responsibility, `run(input: AgentInput) -> AgentOutput`
+- Skills are pure functions: `async def skill_name(ctx: Context, **kwargs) -> Result`
+- Tools are Pydantic models with `async def execute(self) -> ToolResult`
+
+## LLM Client Rules
+- Abstract LLM calls behind `app/core/llm.py` — never import OpenAI/Anthropic directly in agents
+- Always set `max_tokens`, `temperature` explicitly — no defaults
+- Use streaming for responses > 500 tokens
+- Retry logic: `tenacity` with exponential backoff, max 3 retries
+
+## Token Optimization
+- System prompts: store in `app/prompts/` as `.md` files, load once at startup
+- Use prompt caching (Anthropic) or prefix caching where available
+- Trim conversation history: keep last N turns + summary
+- Structured outputs via `response_format={"type": "json_schema"}` to avoid parsing overhead
+
+## Memory & State
+- Short-term: `ConversationBufferWindowMemory` (last 10 msgs)
+- Long-term: vector store (Qdrant/Chroma) with namespace per user
+- State machine for multi-step agents: `LangGraph` StateGraph
+
+## Example Pattern
+```python
+from app.agents.base import BaseAgent
+from app.core.llm import LLMClient
+
+class ResearchAgent(BaseAgent):
+    def __init__(self, llm: LLMClient):
+        super().__init__(name="research", llm=llm)
+
+    async def run(self, input: AgentInput) -> AgentOutput:
+        result = await self.llm.complete(
+            system=self.load_prompt("research_system"),
+            messages=input.messages,
+            max_tokens=1024,
+            temperature=0.2,
+        )
+        return AgentOutput(content=result.text, usage=result.usage)
+```
+
+
+---------------------------------------------------
+FILE: 002-docker.mdc
+---------------------------------------------------
+
+---
+description: Docker best practices for Python AI microservices.
+globs: ["**/Dockerfile", "**/docker-compose*.yml", "**/.dockerignore"]
+alwaysApply: false
+---
+
+# DOCKER
+
+## Dockerfile Template (use this exact structure)
+```dockerfile
+FROM python:3.11-slim AS builder
+WORKDIR /app
+RUN pip install uv
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+
+FROM python:3.11-slim AS runtime
+WORKDIR /app
+COPY --from=builder /app/.venv ./.venv
+COPY app/ ./app/
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+## Rules
+- Multi-stage build mandatory — builder + runtime
+- Never install dev deps in runtime image
+- `.dockerignore` must exclude: `.git`, `__pycache__`, `*.pyc`, `.env`, `tests/`, `*.md`
+- Image labels: `org.opencontainers.image.*` standard
+- Health check in every Dockerfile:
+  ```dockerfile
+  HEALTHCHECK --interval=30s --timeout=10s CMD curl -f http://localhost:8000/health || exit 1
+  ```
+- Non-root user: `RUN useradd -m app && USER app`
+
+
+---------------------------------------------------
+FILE: 003-k8s.mdc
+---------------------------------------------------
+
+---
+description: Kubernetes manifests for AI microservices — minimal, production-ready.
+globs: ["**/k8s/**/*.yaml", "**/manifests/**/*.yaml", "**/helm/**/*.yaml"]
+alwaysApply: false
+---
+
+# KUBERNETES
+
+## Mandatory Fields (every Deployment)
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {service}
+  labels:
+    app: {service}
+    version: "{{.Values.image.tag}}"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: {service}
+  template:
+    spec:
+      containers:
+        - name: {service}
+          image: "{{.Values.image.repo}}:{{.Values.image.tag}}"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+          envFrom:
+            - secretRef:
+                name: {service}-secrets
+```
+
+## Rules
+- Always: `resources.requests` + `resources.limits`
+- Secrets via `secretRef` — never plain env literals with sensitive data
+- HPA for agents: `minReplicas: 2`, scale on CPU 70% or custom LLM queue metric
+- GPU agents: `resources.limits."nvidia.com/gpu": 1` + `nodeSelector`
+- NetworkPolicy: restrict egress to only required services
+- PodDisruptionBudget: `minAvailable: 1` for critical agents
+
+
+---------------------------------------------------
+FILE: 004-cicd.mdc
+---------------------------------------------------
+
+---
+description: GitHub Actions CI/CD patterns for AI microservices.
+globs: ["**/.github/workflows/*.yml", "**/.github/workflows/*.yaml"]
+alwaysApply: false
+---
+
+# CI/CD — GITHUB ACTIONS
+
+## Pipeline Structure (mandatory order)
+1. `lint` — ruff + mypy (fail fast)
+2. `test` — pytest with coverage ≥ 80%
+3. `build` — Docker build + push to registry
+4. `deploy` — kubectl apply / helm upgrade
+
+## Reusable Workflow Template
+```yaml
+name: CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v1
+      - run: mypy app/ --ignore-missing-imports
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install uv && uv sync
+      - run: pytest tests/ --cov=app --cov-fail-under=80
+
+  build:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=,suffix=,format=short
+      - uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+      - run: |
+          helm upgrade --install ${{ env.IMAGE_NAME }} ./helm \
+            --set image.tag=${{ needs.build.outputs.image-tag }} \
+            --namespace production \
+            --wait
+```
+
+## Rules
+- Cache Docker layers with `cache-from: type=gha`
+- Use `GITHUB_TOKEN` for GHCR — no personal tokens
+- Secrets: only in GitHub Environments, not repo-level for production
+- Matrix strategy for multi-service monorepo: `matrix.service: [agent-a, agent-b]`
+
+
+---------------------------------------------------
+FILE: 005-api.mdc
+---------------------------------------------------
+
+---
+description: FastAPI patterns for AI microservice endpoints.
+globs: ["**/api/**/*.py", "**/routers/**/*.py", "**/main.py"]
+alwaysApply: false
+---
+
+# FASTAPI API DESIGN
+
+## Route Conventions
+- Versioned: `/api/v1/{resource}`
+- Async handlers only
+- Response models: always explicit Pydantic schema
+- Streaming: `StreamingResponse` for LLM outputs
+
+## Minimal Service Template
+```python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import settings
+from app.api.v1 import router as v1_router
+
+app = FastAPI(title=settings.SERVICE_NAME, version=settings.VERSION)
+app.add_middleware(CORSMiddleware, allow_origins=settings.ALLOWED_ORIGINS)
+app.include_router(v1_router, prefix="/api/v1")
+
+@app.get("/health")
+async def health() -> dict:
+    return {"status": "ok", "service": settings.SERVICE_NAME}
+```
+
+## Config Pattern (never hardcode)
+```python
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    SERVICE_NAME: str
+    OPENAI_API_KEY: str
+    DATABASE_URL: str
+    LOG_LEVEL: str = "INFO"
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+```
+
+## Background Tasks
+- Use `BackgroundTasks` for non-blocking post-response work
+- Heavy jobs → Celery/ARQ queue, not request handlers
+
+
+===================================
+AVAILABLE SKILLS
+===================================
+
+
+---------------------------------------------------
+SKILL: SKILL_CREATOR.md
+---------------------------------------------------
+
+---
+name: skill-creator
+description: >
+  Creates, tests, and optimizes Claude skills for AI microservices.
+  Use when the user wants to build a new skill, evaluate existing skills,
+  or improve skill triggering accuracy. Handles the full lifecycle:
+  requirements gathering, SKILL.md creation, test generation, 
+  benchmarking, and iterative optimization.
+---
+
+# Skill Creator Agent
+
+## Purpose
+
+Build production-ready Claude skills with automated testing and optimization. Focus on token economy and accurate triggering.
+
+---
+
+## Workflow
+
+### 1. Discovery Phase
+
+Ask user:
+- What should the skill enable Claude to do?
+- When should it trigger? (example phrases)
+- What output format is expected?
+- Are test cases needed?
+
+**Do NOT write code yet.** Gather complete requirements first.
+
+### 2. Requirements Deep Dive
+
+Explore:
+- Edge cases and failure modes
+- Input/output formats and examples
+- Success criteria (what makes a good output?)
+- Token budget constraints
+
+### 3. Create SKILL.md
+
+Structure:
+```markdown
+---
+name: skill-name
+description: >
+  Concise description for triggering logic.
+  Include when to use: "Use when user asks to...", 
+  "Trigger on phrases like...", etc.
+  Aim for 80-120 words. Balance precision vs coverage.
+---
+
+## Instructions
+
+Imperative style: "Do this", "Check that", "Use X format".
+Concrete examples over abstract rules.
+Explain WHY when non-obvious.
+
+## Output Format
+
+Show exact template or example output.
+Claude copies patterns better than interpreting descriptions.
+
+## Edge Cases
+
+Handle: empty inputs, missing data, API failures, etc.
+```
+
+**Token Economy Rules:**
+- Metadata (name + description): ~100 words max
+- Main body: ideally < 500 lines
+- External resources (scripts/, references/): no limit
+
+### 4. Generate Test Cases
+
+Create `evals/evals.json`:
+```json
+{
+  "skill_name": "my-skill",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Realistic user request that should trigger skill",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "expected substring in output"
+        },
+        {
+          "type": "format",
+          "value": "json|markdown|svg|etc"
+        }
+      ],
+      "files": []
+    }
+  ]
+}
+```
+
+**Test Quality:**
+- 2-5 realistic prompts (what real users actually type)
+- Include: typos, slang, implicit requests, edge cases
+- Each test gets assertions (checkable claims about output)
+
+### 5. Run Evaluation
+
+Execute two parallel sub-agents per test:
+- **with-skill**: Uses the new skill
+- **baseline**: No skill (or old version)
+
+Isolated contexts. No cross-contamination.
+
+Save results to `evals/results/{iteration}/`
+
+### 6. Grading
+
+For each test output:
+- Check each assertion: pass/fail + evidence
+- Aggregate: pass rate, tokens used, latency
+- Compare with-skill vs baseline
+
+Schema:
+```json
+{
+  "test_id": 1,
+  "with_skill": {
+    "output": "...",
+    "assertions": [
+      {"claim": "...", "passed": true, "evidence": "..."}
+    ],
+    "tokens": 1234,
+    "latency_ms": 567
+  },
+  "baseline": { /* same structure */ }
+}
+```
+
+### 7. Analysis
+
+Agent reviews all test results and identifies:
+- Consistent failures (same tests fail across iterations)
+- Where new version regressed
+- Where new version improved
+- What to prioritize next
+
+Output: actionable recommendations for next iteration.
+
+### 8. Iteration Loop
+
+User provides feedback. If empty → done. If not:
+1. Update SKILL.md based on feedback
+2. Re-run all tests (new iteration folder)
+3. Compare with previous iteration
+4. Analyze diffs
+5. Get feedback → repeat
+
+---
+
+## Description Optimization
+
+The `description` field is CRITICAL. It controls skill triggering.
+
+**Two error types:**
+- False negative: skill didn't trigger when it should → user doesn't get help
+- False positive: skill triggered incorrectly → wasted context
+
+**Strategy: Be "pushy"**
+Better to trigger extra than miss. User can ignore irrelevant activations, but can't invoke what didn't activate.
+
+**Automated Optimization:**
+1. Generate 20 test queries:
+   - 10 SHOULD trigger (varied phrasing, typos, implicit)
+   - 10 SHOULD NOT trigger (similar but different intent)
+2. Test current description
+3. Adjust based on false positives/negatives
+4. Repeat until accuracy threshold met (e.g., 90%+)
+
+---
+
+## File Structure
+
+```
+my-skill/
+├── SKILL.md              # Main skill definition
+├── scripts/              # Executable code (optional)
+├── references/           # External docs loaded on-demand
+├── assets/               # Templates, icons, fonts
+└── evals/
+    ├── evals.json        # Test definitions
+    └── results/
+        ├── iteration-1/  # First run
+        ├── iteration-2/  # After changes
+        └── ...
+```
+
+---
+
+## Output to User
+
+After each evaluation:
+1. Open results in viewer (HTML report)
+2. Show pass rates: with-skill vs baseline
+3. Highlight regressions and improvements
+4. Wait for feedback
+
+**Feedback format:**
+- Empty = satisfied, stop iterating
+- Specific issues = incorporate into next iteration
+
+---
+
+## Example Session
+
+**User:** "Create a skill for generating API documentation from OpenAPI specs"
+
+**Skill Creator:**
+1. "What format for output? Markdown, HTML, or custom?"
+2. "Should it handle YAML and JSON specs?"
+3. "Any specific sections to emphasize? (auth, rate limits, etc.)"
+
+[After gathering requirements]
+
+4. Creates `SKILL.md` with clear triggering description
+5. Generates 3 test cases with realistic OpenAPI specs
+6. Runs evaluation
+7. Shows results: "With skill: 100% pass rate. Baseline: 33% (missing auth docs)"
+8. Waits for feedback
+9. User: "Add examples to each endpoint"
+10. Updates skill, re-runs tests, shows diff
+
+---
+
+## Critical Principles
+
+- **Token first**: Every word in SKILL.md costs context
+- **Concrete over abstract**: Show examples, not rules
+- **Test realistic inputs**: What users actually type, not idealized prompts
+- **Iterate based on data**: Benchmark-driven improvements
+- **Pushy descriptions**: Better false positive than false negative
+
+---
+
+## Anti-Patterns
+
+❌ Vague descriptions: "Helps with documentation"
+✅ Specific: "Generates API docs from OpenAPI/Swagger YAML/JSON specs. Trigger on: 'document my API', 'create API reference', 'OpenAPI to markdown'"
+
+❌ Abstract instructions: "Maintain code quality"
+✅ Concrete: "Run `make lint`. All tests in tests/ must pass."
+
+❌ Over-constrained: "MUST use exactly 3 paragraphs, 150 words, formal tone"
+✅ Flexible: "Clear, concise explanation. Show code examples where helpful."
+
+❌ Test prompts: "Generate documentation for the following spec:"
+✅ Realistic: "hey can you make docs for my api? here's the swagger file"
+
+---
+
+## Success Metrics
+
+- Pass rate ≥ 90% on realistic tests
+- Token usage ≤ baseline + 20% (skill shouldn't bloat context)
+- False negative rate < 5% (catches intended use cases)
+- User satisfaction (feedback loop converges to empty)
+
+---
+
+## Integration with AI Microservices
+
+Skills live in `.cursor/skills/` or `src/skills/` depending on usage:
+- Cursor IDE skills → `.cursor/skills/`
+- Runtime agent skills → `src/skills/`
+
+Both follow same SKILL.md format. Evaluation framework works for both.
+
+---------------------------------------------------
+SKILL: SKILL_TEMPLATE.md
+---------------------------------------------------
+
+---
+name: example-skill
+description: >
+  Brief description of what this skill does (80-120 words).
+  Include triggering keywords: "Use when user asks to...",
+  "Trigger on phrases like 'do X', 'help with Y'".
+  Be specific enough to avoid false positives, broad enough
+  to catch all valid use cases. Optimize for false negatives
+  over false positives—better to activate unnecessarily than miss.
+---
+
+## Purpose
+
+One sentence: what does this skill enable Claude to do?
+
+## When to Use
+
+Trigger conditions:
+- User asks to [specific action]
+- Query contains keywords: "X", "Y", "Z"
+- Context suggests [specific scenario]
+
+Do NOT trigger when:
+- [Similar but different intent]
+- [Out of scope scenarios]
+
+## Instructions
+
+Step-by-step, imperative style:
+
+1. **Validate Input**
+   - Check for required fields: X, Y, Z
+   - If missing, ask user: "I need [specific info] to proceed"
+   - Handle edge cases: empty input, malformed data
+
+2. **Process**
+   - Do [concrete action]
+   - Use [specific format/tool]
+   - Apply [specific logic]
+   
+   **Why this matters:** [brief context on intent]
+
+3. **Generate Output**
+   - Format as [json|markdown|svg|etc]
+   - Include [required elements]
+   - Structure like:
+   ```
+   [show exact template or example]
+   ```
+
+## Output Format
+
+**Example output:**
+```
+[Paste exact example of good output]
+```
+
+**Required elements:**
+- Element A: [purpose]
+- Element B: [purpose]
+- Element C: [purpose]
+
+**Formatting rules:**
+- Use [specific syntax]
+- Avoid [anti-patterns]
+- Prefer [best practice] because [reason]
+
+## Edge Cases
+
+Handle gracefully:
+- **Empty input:** Return helpful error message
+- **Invalid format:** Suggest correction
+- **Missing dependencies:** Check for [X], fail fast if unavailable
+- **Partial data:** Work with what's available, note limitations
+
+## Token Optimization
+
+- Load heavy references from `references/` only if needed
+- Use cached prompts for repeated patterns
+- Prefer structured outputs (JSON schema) over free text
+- Stream long responses (>500 tokens)
+
+## Examples
+
+### Example 1: [Scenario]
+**Input:** [realistic user query]
+**Output:** [expected result]
+
+### Example 2: [Edge case]
+**Input:** [tricky query]
+**Output:** [how to handle]
+
+## References
+
+External resources (loaded on-demand):
+- `references/schema.json` — Data format specification
+- `references/examples.md` — Additional examples
+- `scripts/helper.py` — Executable utility (if deterministic logic)
+
+## Testing Assertions
+
+When evaluating this skill, check:
+- [ ] Output contains [required element]
+- [ ] Format is valid [json|markdown|etc]
+- [ ] No hallucinated data (only use provided context)
+- [ ] Handles edge case: [specific scenario]
+- [ ] Token usage ≤ [budget]
+
+## Iteration Notes
+
+**v1.0:** Initial version
+**v1.1:** Added handling for [edge case] after test failures
+**v1.2:** Optimized description for better triggering on [phrase type]

@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Skill Evaluation Schema",
+  "description": "Test cases and results for skill evaluation",
+  
+  "definitions": {
+    "assertion": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["contains", "not_contains", "format", "regex", "length", "custom"],
+          "description": "Type of assertion to check"
+        },
+        "value": {
+          "description": "Expected value or pattern"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable assertion description"
+        }
+      },
+      "required": ["type", "value"]
+    },
+    
+    "test_case": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Unique test identifier"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "Realistic user query (as they'd actually type it)"
+        },
+        "context": {
+          "type": "object",
+          "description": "Optional context data",
+          "default": {}
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {"type": "string"},
+              "content": {"type": "string"}
+            },
+            "required": ["path", "content"]
+          },
+          "default": []
+        },
+        "assertions": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/assertion"},
+          "description": "Checkable claims about expected output"
+        },
+        "expected_output": {
+          "type": "string",
+          "description": "Optional: example of good output"
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Tags for filtering (e.g., 'edge_case', 'happy_path')"
+        }
+      },
+      "required": ["id", "prompt", "assertions"]
+    },
+    
+    "assertion_result": {
+      "type": "object",
+      "properties": {
+        "claim": {
+          "type": "string",
+          "description": "What was being checked"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "type": "string",
+          "description": "Proof from output supporting pass/fail"
+        }
+      },
+      "required": ["claim", "passed", "evidence"]
+    },
+    
+    "test_result": {
+      "type": "object",
+      "properties": {
+        "test_id": {"type": "integer"},
+        "iteration": {"type": "integer"},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "with_skill": {
+          "type": "object",
+          "properties": {
+            "output": {"type": "string"},
+            "assertions": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/assertion_result"}
+            },
+            "tokens": {"type": "integer"},
+            "latency_ms": {"type": "integer"},
+            "error": {"type": "string"}
+          }
+        },
+        "baseline": {
+          "type": "object",
+          "properties": {
+            "output": {"type": "string"},
+            "assertions": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/assertion_result"}
+            },
+            "tokens": {"type": "integer"},
+            "latency_ms": {"type": "integer"},
+            "error": {"type": "string"}
+          }
+        }
+      },
+      "required": ["test_id", "iteration", "with_skill", "baseline"]
+    },
+    
+    "benchmark": {
+      "type": "object",
+      "properties": {
+        "iteration": {"type": "integer"},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "with_skill": {
+          "type": "object",
+          "properties": {
+            "pass_rate": {"type": "number", "minimum": 0, "maximum": 1},
+            "avg_tokens": {"type": "number"},
+            "avg_latency_ms": {"type": "number"},
+            "total_tests": {"type": "integer"},
+            "passed_tests": {"type": "integer"}
+          }
+        },
+        "baseline": {
+          "type": "object",
+          "properties": {
+            "pass_rate": {"type": "number"},
+            "avg_tokens": {"type": "number"},
+            "avg_latency_ms": {"type": "number"}
+          }
+        },
+        "improvements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "test_id": {"type": "integer"},
+              "description": {"type": "string"}
+            }
+          }
+        },
+        "regressions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "test_id": {"type": "integer"},
+              "description": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  },
+  
+  "type": "object",
+  "properties": {
+    "skill_name": {
+      "type": "string",
+      "description": "Name of the skill being tested"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "evals": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/test_case"},
+      "minItems": 1,
+      "description": "Test cases for this skill"
+    }
+  },
+  "required": ["skill_name", "evals"]
+}

@@ -1,0 +1,19 @@
+---
+description: Core rules for this project
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# CORE RULES
+
+## Token Economy
+- Answer ONLY what is asked
+- Generate ONLY changed code blocks
+- Use `# ... existing ...` for unchanged sections
+- Skip docstrings on private methods
+
+## Python Standards
+- Python 3.11+
+- Type hints everywhere
+- Async-first for I/O operations
+- Pydantic v2 for models
