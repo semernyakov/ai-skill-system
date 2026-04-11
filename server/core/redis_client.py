@@ -1,7 +1,7 @@
 """Redis client for shared state management"""
 
 import json
-import aioredis
+import redis.asyncio as aioredis
 from typing import Optional, Any
 from server.core.config import settings
 

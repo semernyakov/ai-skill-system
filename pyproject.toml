@@ -25,7 +25,6 @@ dependencies = [
     "fastapi-limiter>=0.2.0",
     "pyrate-limiter>=2.10.0",
     "redis>=5.0.0",
-    "aioredis>=2.0.0",
     "setuptools>=70.0.0",
 ]
 
