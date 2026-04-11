@@ -269,6 +269,25 @@ python3 --version
 python3 -m json.tool .ai/skills/schemas/eval_schema.json
 ```
 
+### Markdown linting не работает
+
+Markdown linting настроен в `.pre-commit-config.yaml` (markdownlint), но не активен из-за отсутствия зависимостей.
+
+**Для активации требуется одна из опций:**
+
+**Вариант A:** Установить pre-commit framework
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+**Вариант B:** Установить markdownlint-cli
+```bash
+npm install -g markdownlint-cli
+```
+
+Без установки этих зависимостей markdown linting не будет работать. Конфигурация готова, но требует хотя бы одной зависимости для активации.
+
 ## Дополнительные ресурсы
 
 - **TEAM.md** — Team protocol и роли
