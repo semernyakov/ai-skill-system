@@ -27,7 +27,7 @@ class Rule(BaseModel):
         if isinstance(v, str):
             try:
                 return json.loads(v)
-            except:
+            except json.JSONDecodeError:
                 return []
         return v
 
@@ -38,31 +38,9 @@ class RuleCreate(BaseModel):
     globs: list[str] = Field(default_factory=list)
     always_apply: bool = False
 
-    @field_validator('description')
-    @classmethod
-    def validate_no_sql_injection(cls, v: str) -> str:
-        sql_keywords = ['DROP', 'DELETE', 'UNION', 'INSERT', 'UPDATE', 'ALTER', 'TRUNCATE', 'EXEC', 'EXECUTE']
-        upper_v = v.upper()
-        for keyword in sql_keywords:
-            if keyword in upper_v:
-                raise ValueError(f"SQL keyword '{keyword}' not allowed in description")
-        return v
-
 
 class RuleUpdate(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=100, pattern=r'^[a-zA-Z0-9_-]+$')
     description: str | None = Field(None, min_length=10, max_length=5000)
     globs: list[str] | None = None
     always_apply: bool | None = None
-
-    @field_validator('description')
-    @classmethod
-    def validate_no_sql_injection(cls, v: str) -> str:
-        if v is None:
-            return v
-        sql_keywords = ['DROP', 'DELETE', 'UNION', 'INSERT', 'UPDATE', 'ALTER', 'TRUNCATE']
-        upper_v = v.upper()
-        for keyword in sql_keywords:
-            if keyword in upper_v:
-                raise ValueError(f"SQL keyword '{keyword}' not allowed in description")
-        return v

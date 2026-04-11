@@ -1,9 +1,15 @@
 """Logs API endpoints"""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Literal
+from sqlmodel import Session
+
+from server.core.database import get_session
+from server.core.auth import get_current_user, require_role
+from server.core.redis_client import redis_list_append, redis_list_get_all
+from server.db.models import User, UserRole
 
 router = APIRouter(prefix="/api/v1/logs", tags=["logs"])
 
@@ -22,8 +28,8 @@ class LogsRequest(BaseModel):
     limit: int = 100
 
 
-# Mock log data
-mock_logs: list[LogEntry] = [
+# Default mock log data
+DEFAULT_LOGS = [
     LogEntry(
         timestamp=datetime.now(),
         level="INFO",
@@ -53,10 +59,27 @@ mock_logs: list[LogEntry] = [
 ]
 
 
+async def get_logs_from_redis() -> list[LogEntry]:
+    """Get logs from Redis or initialize defaults"""
+    logs_list = await redis_list_get_all("logs")
+    if logs_list:
+        return [LogEntry(**log) for log in logs_list]
+    
+    # Initialize with defaults
+    for log in DEFAULT_LOGS:
+        await redis_list_append("logs", log.model_dump())
+    return DEFAULT_LOGS
+
+
 @router.post("", response_model=list[LogEntry])
-async def get_logs(request: LogsRequest):
+async def get_logs(
+    request: LogsRequest,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_role(UserRole.VIEWER))
+):
     """Get logs with optional filtering"""
-    filtered_logs = mock_logs
+    logs = await get_logs_from_redis()
+    filtered_logs = logs
     
     if request.service:
         filtered_logs = [log for log in filtered_logs if log.service == request.service]
@@ -68,8 +91,12 @@ async def get_logs(request: LogsRequest):
 
 
 @router.get("/stream")
-async def stream_logs():
+async def stream_logs(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_role(UserRole.VIEWER))
+):
     """Stream logs in real-time (SSE endpoint)"""
     # This would typically use Server-Sent Events
     # For now, return the current logs
-    return mock_logs
+    logs = await get_logs_from_redis()
+    return logs

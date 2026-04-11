@@ -2,6 +2,7 @@
 
 import sys
 import os
+import logging
 
 # Add server to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -9,6 +10,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from server.core.database import init_db
 from server.db.models import User, UserRole
 from server.core.security import get_password_hash
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def create_admin_user():
@@ -20,7 +24,7 @@ def create_admin_user():
         # Check if admin exists
         existing = session.get(User, "admin")
         if existing:
-            print("Admin user already exists")
+            logger.info("Admin user already exists")
             return
         
         # Create admin user (password: Admin123!)
@@ -32,12 +36,12 @@ def create_admin_user():
         )
         session.add(admin)
         session.commit()
-        print("Created admin user (username: admin, password: admin123)")
+        logger.info("Created admin user (username: admin)")
 
 
 if __name__ == "__main__":
-    print("Initializing database...")
+    logger.info("Initializing database...")
     init_db()
-    print("Database initialized")
+    logger.info("Database initialized")
     create_admin_user()
-    print("Done")
+    logger.info("Done")

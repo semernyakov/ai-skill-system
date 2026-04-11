@@ -10,6 +10,8 @@ from server.core.database import get_session
 from server.db.models import User, UserRole
 from server.core.security import verify_password, create_access_token, get_password_hash
 from server.core.config import settings
+from server.core.rate_limit import get_auth_rate_limiter
+from datetime import timedelta
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -35,7 +37,7 @@ class TokenResponse(BaseModel):
     user_role: str
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[Depends(get_auth_rate_limiter)])
 async def login(
     login_data: LoginRequest,
     session: Session = Depends(get_session)
@@ -50,7 +52,7 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token_expires = timedelta(minutes=30)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )

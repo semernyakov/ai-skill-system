@@ -33,7 +33,7 @@ class Rule(SQLModel, table=True):
         import json
         try:
             return json.loads(self.globs)
-        except:
+        except json.JSONDecodeError:
             return []
 
 

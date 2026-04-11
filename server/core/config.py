@@ -23,9 +23,13 @@ class Settings(BaseSettings):
     MCP_GATEWAY_HOST: str = "localhost"
     MCP_GATEWAY_PORT: int = 8080
 
-    JWT_SECRET_KEY: str = "your-secret-key-change-in-production"
+    JWT_SECRET_KEY: str = "dev-secret-key-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    REDIS_URL: str = "redis://localhost:6379/0"
+
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 
 settings = Settings()
