@@ -29,7 +29,7 @@ dependencies = [
 
 [project.scripts]
 ai-skill-system = "server.cli.main:cli"
-ai-skill-system-tui = "server.tui.main:app"
+ai-skill-system-tui = "server.tui.main:main"
 
 [build-system]
 requires = ["hatchling"]

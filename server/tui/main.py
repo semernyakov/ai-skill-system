@@ -320,9 +320,11 @@ class SkillSystemTUI(App):
         self.exit()
 
 
-# Entry point for package script
-app = SkillSystemTUI()
+def main():
+    """Entry point for package script"""
+    app = SkillSystemTUI()
+    app.run()
 
 
 if __name__ == "__main__":
-    app.run()
+    main()
