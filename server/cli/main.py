@@ -139,6 +139,30 @@ def delete_skill(skill_id):
             console.print(f"[red]Error: {response.status_code}[/red]")
 
 
+@skills.command("edit")
+@click.argument("skill_id")
+@click.option("--name", help="New skill name")
+@click.option("--description", help="New skill description")
+def edit_skill(skill_id, name, description):
+    """Edit a skill"""
+    data = {}
+    if name:
+        data["name"] = name
+    if description:
+        data["description"] = description
+    
+    if not data:
+        console.print("[yellow]No changes specified[/yellow]")
+        return
+    
+    with httpx.Client(proxy=None) as client:
+        response = client.put(f"{API_BASE}/skills/{skill_id}", json=data)
+        if response.status_code == 200:
+            console.print(f"[green]Skill {skill_id} updated[/green]")
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
 @cli.group()
 def mcp():
     """Manage MCP Gateway services"""
@@ -199,7 +223,7 @@ def stop_mcp_service(service_name):
 def check_mcp_health():
     """Check health of all MCP services"""
     with httpx.Client(proxy=None) as client:
-        response = client.get(f"{API_BASE}/mcp/services/health")
+        response = client.get(f"{API_BASE}/mcp/health")
         if response.status_code == 200:
             health_data = response.json()
             table = Table(title="MCP Services Health")
@@ -290,6 +314,30 @@ def list_audit_results():
             console.print(f"[red]Error: {response.status_code}[/red]")
 
 
+@audit.command("report")
+@click.argument("audit_id")
+@click.option("--format", default="text", help="Report format: text, json")
+def generate_audit_report(audit_id, format):
+    """Generate audit report"""
+    with httpx.Client(proxy=None) as client:
+        response = client.get(f"{API_BASE}/audit/results/{audit_id}")
+        if response.status_code == 200:
+            result = response.json()
+            if format == "json":
+                console.print_json(result)
+            else:
+                console.print(f"\nAudit Report #{result['id']}")
+                console.print(f"Type: {result['audit_type']}")
+                console.print(f"Status: {result['status']}")
+                console.print(f"Summary: {result['summary']}")
+                console.print(f"\nFindings:")
+                for finding in result["findings"]:
+                    console.print(f"  - [{finding['severity']}] {finding['category']}: {finding['message']}")
+                    console.print(f"    Recommendation: {finding['recommendation']}")
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
 @cli.group()
 def logs():
     """System logs"""
@@ -321,6 +369,49 @@ def view_logs(service, level, limit):
                     log["message"][:50] + "..." if len(log["message"]) > 50 else log["message"]
                 )
             console.print(table)
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@logs.command("tail")
+@click.argument("service")
+@click.option("--limit", default=20, help="Number of logs to show")
+def tail_logs(service, limit):
+    """Tail logs for a specific service"""
+    data = {"service": service, "limit": limit}
+    with httpx.Client(proxy=None) as client:
+        response = client.post(f"{API_BASE}/logs", json=data)
+        if response.status_code == 200:
+            logs = response.json()
+            table = Table(title=f"Logs for {service}")
+            table.add_column("Timestamp", style="cyan")
+            table.add_column("Level", style="magenta")
+            table.add_column("Message", style="yellow")
+            
+            for log in logs:
+                table.add_row(
+                    str(log["timestamp"]),
+                    log["level"],
+                    log["message"][:80] + "..." if len(log["message"]) > 80 else log["message"]
+                )
+            console.print(table)
+        else:
+            console.print(f"[red]Error: {response.status_code}[/red]")
+
+
+@logs.command("follow")
+@click.option("--service", help="Filter by service")
+def follow_logs(service):
+    """Follow logs in real-time (simulated)"""
+    console.print("[yellow]Following logs... (Press Ctrl+C to stop)[/yellow]")
+    console.print("[yellow]Note: Real-time log following requires WebSocket support[/yellow]")
+    data = {"service": service, "limit": 10}
+    with httpx.Client(proxy=None) as client:
+        response = client.post(f"{API_BASE}/logs", json=data)
+        if response.status_code == 200:
+            logs = response.json()
+            for log in logs:
+                console.print(f"[{log['level']}] {log['service']}: {log['message']}")
         else:
             console.print(f"[red]Error: {response.status_code}[/red]")
 
