@@ -39,4 +39,4 @@ Arbitr (Ivan), Vasya, Yosya, Bosya, Manya, Sanya, Kirill.
 - **Git Service** (в разработке) — операции с git
 - **GitHub Service** (в разработке) — интеграция с GitHub API
 
-Подробнее: см. `MCP_GATEWAY_PROPOSAL.md`
+Подробнее: см. `MCP_GATEWAY.md`

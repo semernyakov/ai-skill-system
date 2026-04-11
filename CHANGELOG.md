@@ -9,7 +9,7 @@
 - Created gateway configuration (`.ai/mcp/config.json`)
 - Added start script (`.ai/scripts/start-mcp-gateway.sh`)
 - Added `pyproject.toml` with dependencies (fastapi, uvicorn, pydantic)
-- Created `MCP_GATEWAY_PROPOSAL.md` with architecture documentation
+- Created `MCP_GATEWAY.md` with architecture documentation
 
 ### Team Role Updates
 - Renamed Dava to Vasya (Principal Software Engineer Front)

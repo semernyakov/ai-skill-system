@@ -200,7 +200,7 @@ Gateway будет доступен на `http://localhost:8080`
 - `GET /mcp/health/{service_name}` — проверка здоровья
 - `GET /mcp/{service_name}/capabilities` — возможности сервиса
 
-Подробнее: см. `MCP_GATEWAY_PROPOSAL.md`
+Подробнее: см. `MCP_GATEWAY.md`
 
 ### Редактирование правил
 
