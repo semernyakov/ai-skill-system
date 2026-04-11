@@ -8,15 +8,107 @@ import shutil
 import os
 import sys
 import subprocess
+import json
 
 console = Console()
 API_BASE = "http://127.0.0.1:8000/api/v1"
+TOKEN_FILE = os.path.expanduser("~/.ai-skill-system-token.json")
+
+
+def get_token():
+    """Get stored JWT token"""
+    try:
+        if os.path.exists(TOKEN_FILE):
+            with open(TOKEN_FILE, "r") as f:
+                data = json.load(f)
+                return data.get("token")
+    except Exception:
+        pass
+    return None
+
+
+def save_token(token):
+    """Save JWT token"""
+    try:
+        with open(TOKEN_FILE, "w") as f:
+            json.dump({"token": token}, f)
+    except Exception as e:
+        console.print(f"[red]Failed to save token: {e}[/red]")
+
+
+def clear_token():
+    """Clear stored JWT token"""
+    try:
+        if os.path.exists(TOKEN_FILE):
+            os.remove(TOKEN_FILE)
+    except Exception:
+        pass
+
+
+def get_auth_headers():
+    """Get authentication headers with JWT token"""
+    token = get_token()
+    if token:
+        return {"Authorization": f"Bearer {token}"}
+    return {}
+
+
+def check_auth():
+    """Check if user is authenticated"""
+    if not get_token():
+        console.print("[red]Not authenticated. Please login first: ai-skill-system auth login[/red]")
+        sys.exit(1)
 
 
 @click.group()
 def cli():
     """AI Skill System Management CLI"""
     pass
+
+
+@cli.group()
+def auth():
+    """Authentication management"""
+    pass
+
+
+@auth.command("login")
+@click.option("--username", prompt=True, help="Username")
+@click.option("--password", prompt=True, hide_input=True, help="Password")
+def login(username, password):
+    """Login to the system"""
+    with httpx.Client(proxy=None) as client:
+        response = client.post(f"{API_BASE}/auth/login", json={
+            "username": username,
+            "password": password
+        })
+        if response.status_code == 200:
+            data = response.json()
+            token = data.get("access_token")
+            if token:
+                save_token(token)
+                console.print(f"[green]Logged in as {username}[/green]")
+            else:
+                console.print("[red]Login failed: No token received[/red]")
+        else:
+            console.print(f"[red]Login failed: {response.status_code}[/red]")
+
+
+@auth.command("logout")
+def logout():
+    """Logout from the system"""
+    clear_token()
+    console.print("[green]Logged out successfully[/green]")
+
+
+@auth.command("status")
+def auth_status():
+    """Check authentication status"""
+    token = get_token()
+    if token:
+        console.print("[green]Authenticated[/green]")
+    else:
+        console.print("[yellow]Not authenticated[/yellow]")
 
 
 @cli.group()
@@ -28,8 +120,9 @@ def rules():
 @rules.command("list")
 def list_rules():
     """List all rules"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.get(f"{API_BASE}/rules")
+        response = client.get(f"{API_BASE}/rules", headers=get_auth_headers())
         if response.status_code == 200:
             rules = response.json()
             table = Table(title="Rules")
@@ -37,7 +130,7 @@ def list_rules():
             table.add_column("Name", style="magenta")
             table.add_column("Description", style="green")
             table.add_column("Always Apply", style="yellow")
-            
+
             for rule in rules:
                 table.add_row(
                     str(rule["id"]),
@@ -57,6 +150,7 @@ def list_rules():
 @click.option("--always-apply", is_flag=True, help="Apply to all files")
 def create_rule(name, description, globs, always_apply):
     """Create a new rule"""
+    check_auth()
     data = {
         "name": name,
         "description": description,
@@ -64,7 +158,7 @@ def create_rule(name, description, globs, always_apply):
         "always_apply": always_apply
     }
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/rules", json=data)
+        response = client.post(f"{API_BASE}/rules", json=data, headers=get_auth_headers())
         if response.status_code == 201:
             rule = response.json()
             console.print(f"[green]Rule created with ID: {rule['id']}[/green]")
@@ -76,8 +170,9 @@ def create_rule(name, description, globs, always_apply):
 @click.argument("rule_id")
 def delete_rule(rule_id):
     """Delete a rule"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.delete(f"{API_BASE}/rules/{rule_id}")
+        response = client.delete(f"{API_BASE}/rules/{rule_id}", headers=get_auth_headers())
         if response.status_code == 204:
             console.print(f"[green]Rule {rule_id} deleted[/green]")
         else:
@@ -93,15 +188,16 @@ def skills():
 @skills.command("list")
 def list_skills():
     """List all skills"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.get(f"{API_BASE}/skills")
+        response = client.get(f"{API_BASE}/skills", headers=get_auth_headers())
         if response.status_code == 200:
             skills = response.json()
             table = Table(title="Skills")
             table.add_column("ID", style="cyan")
             table.add_column("Name", style="magenta")
             table.add_column("Description", style="green")
-            
+
             for skill in skills:
                 table.add_row(
                     str(skill["id"]),
@@ -118,12 +214,13 @@ def list_skills():
 @click.option("--description", required=True, help="Skill description")
 def create_skill(name, description):
     """Create a new skill"""
+    check_auth()
     data = {
         "name": name,
         "description": description
     }
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/skills", json=data)
+        response = client.post(f"{API_BASE}/skills", json=data, headers=get_auth_headers())
         if response.status_code == 201:
             skill = response.json()
             console.print(f"[green]Skill created with ID: {skill['id']}[/green]")
@@ -135,8 +232,9 @@ def create_skill(name, description):
 @click.argument("skill_id")
 def delete_skill(skill_id):
     """Delete a skill"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.delete(f"{API_BASE}/skills/{skill_id}")
+        response = client.delete(f"{API_BASE}/skills/{skill_id}", headers=get_auth_headers())
         if response.status_code == 204:
             console.print(f"[green]Skill {skill_id} deleted[/green]")
         else:
@@ -149,18 +247,19 @@ def delete_skill(skill_id):
 @click.option("--description", help="New skill description")
 def edit_skill(skill_id, name, description):
     """Edit a skill"""
+    check_auth()
     data = {}
     if name:
         data["name"] = name
     if description:
         data["description"] = description
-    
+
     if not data:
         console.print("[yellow]No changes specified[/yellow]")
         return
-    
+
     with httpx.Client(proxy=None) as client:
-        response = client.put(f"{API_BASE}/skills/{skill_id}", json=data)
+        response = client.put(f"{API_BASE}/skills/{skill_id}", json=data, headers=get_auth_headers())
         if response.status_code == 200:
             console.print(f"[green]Skill {skill_id} updated[/green]")
         else:
@@ -176,8 +275,9 @@ def mcp():
 @mcp.command("list")
 def list_mcp_services():
     """List all MCP services"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.get(f"{API_BASE}/mcp/services")
+        response = client.get(f"{API_BASE}/mcp/services", headers=get_auth_headers())
         if response.status_code == 200:
             services = response.json()
             table = Table(title="MCP Gateway Services")
@@ -185,7 +285,7 @@ def list_mcp_services():
             table.add_column("Status", style="magenta")
             table.add_column("Host", style="green")
             table.add_column("Port", style="yellow")
-            
+
             for service in services:
                 status_style = "green" if service["status"] == "running" else "red"
                 table.add_row(
@@ -203,8 +303,9 @@ def list_mcp_services():
 @click.argument("service_name")
 def start_mcp_service(service_name):
     """Start an MCP service"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/mcp/services/start", json={"service_name": service_name})
+        response = client.post(f"{API_BASE}/mcp/services/start", json={"service_name": service_name}, headers=get_auth_headers())
         if response.status_code == 200:
             console.print(f"[green]Service {service_name} started[/green]")
         else:
@@ -215,8 +316,9 @@ def start_mcp_service(service_name):
 @click.argument("service_name")
 def stop_mcp_service(service_name):
     """Stop an MCP service"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/mcp/services/stop", json={"service_name": service_name})
+        response = client.post(f"{API_BASE}/mcp/services/stop", json={"service_name": service_name}, headers=get_auth_headers())
         if response.status_code == 200:
             console.print(f"[green]Service {service_name} stopped[/green]")
         else:
@@ -226,8 +328,9 @@ def stop_mcp_service(service_name):
 @mcp.command("health")
 def check_mcp_health():
     """Check health of all MCP services"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.get(f"{API_BASE}/mcp/health")
+        response = client.get(f"{API_BASE}/mcp/health", headers=get_auth_headers())
         if response.status_code == 200:
             health_data = response.json()
             table = Table(title="MCP Services Health")
@@ -235,7 +338,7 @@ def check_mcp_health():
             table.add_column("Status", style="magenta")
             table.add_column("Uptime", style="green")
             table.add_column("Last Check", style="yellow")
-            
+
             for service, health in health_data.items():
                 status_style = "green" if health["healthy"] else "red"
                 table.add_row(
@@ -259,9 +362,10 @@ def sync():
 @click.option("--force-all", is_flag=True, help="Force sync all IDEs")
 def run_sync(force_all):
     """Trigger IDE synchronization"""
+    check_auth()
     data = {"force_all": force_all}
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/sync", json=data)
+        response = client.post(f"{API_BASE}/sync", json=data, headers=get_auth_headers())
         if response.status_code == 200:
             result = response.json()
             console.print(f"[green]Sync completed[/green]")
@@ -281,9 +385,10 @@ def audit():
 @click.option("--type", "audit_type", default="security", help="Audit type: security, performance, architecture, compliance")
 def run_audit(audit_type):
     """Run system audit"""
+    check_auth()
     data = {"audit_type": audit_type.upper()}
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/audit/run", json=data)
+        response = client.post(f"{API_BASE}/audit/run", json=data, headers=get_auth_headers())
         if response.status_code == 200:
             result = response.json()
             console.print(f"[green]Audit completed (ID: {result['id']})[/green]")
@@ -296,8 +401,9 @@ def run_audit(audit_type):
 @audit.command("results")
 def list_audit_results():
     """List all audit results"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.get(f"{API_BASE}/audit/results")
+        response = client.get(f"{API_BASE}/audit/results", headers=get_auth_headers())
         if response.status_code == 200:
             results = response.json()
             table = Table(title="Audit Results")
@@ -305,7 +411,7 @@ def list_audit_results():
             table.add_column("Type", style="magenta")
             table.add_column("Status", style="green")
             table.add_column("Summary", style="yellow")
-            
+
             for result in results:
                 table.add_row(
                     str(result["id"]),
@@ -323,8 +429,9 @@ def list_audit_results():
 @click.option("--format", default="text", help="Report format: text, json")
 def generate_audit_report(audit_id, format):
     """Generate audit report"""
+    check_auth()
     with httpx.Client(proxy=None) as client:
-        response = client.get(f"{API_BASE}/audit/results/{audit_id}")
+        response = client.get(f"{API_BASE}/audit/results/{audit_id}", headers=get_auth_headers())
         if response.status_code == 200:
             result = response.json()
             if format == "json":
@@ -354,9 +461,10 @@ def logs():
 @click.option("--limit", default=50, help="Number of logs to show")
 def view_logs(service, level, limit):
     """View system logs"""
+    check_auth()
     data = {"service": service, "level": level, "limit": limit}
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/logs", json=data)
+        response = client.post(f"{API_BASE}/logs", json=data, headers=get_auth_headers())
         if response.status_code == 200:
             logs = response.json()
             table = Table(title="System Logs")
@@ -364,7 +472,7 @@ def view_logs(service, level, limit):
             table.add_column("Level", style="magenta")
             table.add_column("Service", style="green")
             table.add_column("Message", style="yellow")
-            
+
             for log in logs:
                 table.add_row(
                     str(log["timestamp"]),
@@ -382,16 +490,17 @@ def view_logs(service, level, limit):
 @click.option("--limit", default=20, help="Number of logs to show")
 def tail_logs(service, limit):
     """Tail logs for a specific service"""
+    check_auth()
     data = {"service": service, "limit": limit}
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/logs", json=data)
+        response = client.post(f"{API_BASE}/logs", json=data, headers=get_auth_headers())
         if response.status_code == 200:
             logs = response.json()
             table = Table(title=f"Logs for {service}")
             table.add_column("Timestamp", style="cyan")
             table.add_column("Level", style="magenta")
             table.add_column("Message", style="yellow")
-            
+
             for log in logs:
                 table.add_row(
                     str(log["timestamp"]),
@@ -407,11 +516,12 @@ def tail_logs(service, limit):
 @click.option("--service", help="Filter by service")
 def follow_logs(service):
     """Follow logs in real-time (simulated)"""
+    check_auth()
     console.print("[yellow]Following logs... (Press Ctrl+C to stop)[/yellow]")
     console.print("[yellow]Note: Real-time log following requires WebSocket support[/yellow]")
     data = {"service": service, "limit": 10}
     with httpx.Client(proxy=None) as client:
-        response = client.post(f"{API_BASE}/logs", json=data)
+        response = client.post(f"{API_BASE}/logs", json=data, headers=get_auth_headers())
         if response.status_code == 200:
             logs = response.json()
             for log in logs:

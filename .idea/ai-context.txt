@@ -1,6 +1,6 @@
 # PyCharm AI Assistant Context
 # Auto-generated from .ai/rules/
-# Last sync: Sun Apr 12 01:53:26 MSK 2026
+# Last sync: Sun Apr 12 01:57:48 MSK 2026
 
 ===================================
 INSTRUCTIONS FOR AI ASSISTANT

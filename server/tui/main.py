@@ -6,8 +6,31 @@ from textual.widgets import Header, Footer, Static, Button, DataTable, Input, La
 from textual.screen import ModalScreen
 from textual import on
 import httpx
+import json
+import os
 
 API_BASE = "http://127.0.0.1:8000/api/v1"
+TOKEN_FILE = os.path.expanduser("~/.ai-skill-system-token.json")
+
+
+def get_token():
+    """Get stored JWT token"""
+    try:
+        if os.path.exists(TOKEN_FILE):
+            with open(TOKEN_FILE, "r") as f:
+                data = json.load(f)
+                return data.get("token")
+    except Exception:
+        pass
+    return None
+
+
+def get_auth_headers():
+    """Get authentication headers with JWT token"""
+    token = get_token()
+    if token:
+        return {"Authorization": f"Bearer {token}"}
+    return {}
 
 
 class CreateRuleScreen(ModalScreen):
@@ -38,9 +61,11 @@ class CreateRuleScreen(ModalScreen):
                             "description": description,
                             "globs": [],
                             "always_apply": False
-                        })
+                        }, headers=get_auth_headers())
                         if response.status_code == 200:
                             self.dismiss("created")
+                        elif response.status_code == 401:
+                            self.dismiss("Authentication required")
                         else:
                             self.dismiss(f"Error: {response.status_code}")
                 except Exception as e:
@@ -77,9 +102,11 @@ class CreateSkillScreen(ModalScreen):
                         response = client.post(f"{API_BASE}/skills", json={
                             "name": name,
                             "description": description
-                        })
+                        }, headers=get_auth_headers())
                         if response.status_code == 200:
                             self.dismiss("created")
+                        elif response.status_code == 401:
+                            self.dismiss("Authentication required")
                         else:
                             self.dismiss(f"Error: {response.status_code}")
                 except Exception as e:
@@ -213,14 +240,14 @@ class SkillSystemTUI(App):
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
-                rules_resp = client.get(f"{API_BASE}/rules")
-                skills_resp = client.get(f"{API_BASE}/skills")
-                mcp_resp = client.get(f"{API_BASE}/mcp/services")
-                
+                rules_resp = client.get(f"{API_BASE}/rules", headers=get_auth_headers())
+                skills_resp = client.get(f"{API_BASE}/skills", headers=get_auth_headers())
+                mcp_resp = client.get(f"{API_BASE}/mcp/services", headers=get_auth_headers())
+
                 rules_count = len(rules_resp.json()) if rules_resp.status_code == 200 else 0
                 skills_count = len(skills_resp.json()) if skills_resp.status_code == 200 else 0
                 mcp_count = len(mcp_resp.json()) if mcp_resp.status_code == 200 else 0
-                
+
                 content.update(
                     f"System Overview:\n\n"
                     f"Rules: {rules_count}\n"
@@ -235,7 +262,7 @@ class SkillSystemTUI(App):
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
-                response = client.get(f"{API_BASE}/rules")
+                response = client.get(f"{API_BASE}/rules", headers=get_auth_headers())
                 if response.status_code == 200:
                     rules = response.json()
                     if rules:
@@ -243,6 +270,8 @@ class SkillSystemTUI(App):
                         content.update(f"Rules ({len(rules)}):\n\n{text}\n\nPress [c] to create new rule")
                     else:
                         content.update("No rules found. Press [c] to create one.")
+                elif response.status_code == 401:
+                    content.update("Authentication required. Use CLI to login: ai-skill-system auth login")
                 else:
                     content.update("Failed to load rules")
         except Exception as e:
@@ -252,7 +281,7 @@ class SkillSystemTUI(App):
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
-                response = client.get(f"{API_BASE}/skills")
+                response = client.get(f"{API_BASE}/skills", headers=get_auth_headers())
                 if response.status_code == 200:
                     skills = response.json()
                     if skills:
@@ -260,6 +289,8 @@ class SkillSystemTUI(App):
                         content.update(f"Skills ({len(skills)}):\n\n{text}\n\nPress [c] to create new skill")
                     else:
                         content.update("No skills found. Press [c] to create one.")
+                elif response.status_code == 401:
+                    content.update("Authentication required. Use CLI to login: ai-skill-system auth login")
                 else:
                     content.update("Failed to load skills")
         except Exception as e:
@@ -269,7 +300,7 @@ class SkillSystemTUI(App):
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
-                response = client.get(f"{API_BASE}/mcp/services")
+                response = client.get(f"{API_BASE}/mcp/services", headers=get_auth_headers())
                 if response.status_code == 200:
                     services = response.json()
                     if services:
@@ -277,6 +308,8 @@ class SkillSystemTUI(App):
                         content.update(f"MCP Services ({len(services)}):\n\n{text}")
                     else:
                         content.update("No MCP services found")
+                elif response.status_code == 401:
+                    content.update("Authentication required. Use CLI to login: ai-skill-system auth login")
                 else:
                     content.update("Failed to load MCP services")
         except Exception as e:
@@ -286,7 +319,7 @@ class SkillSystemTUI(App):
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
-                response = client.get(f"{API_BASE}/audit/results")
+                response = client.get(f"{API_BASE}/audit/results", headers=get_auth_headers())
                 if response.status_code == 200:
                     results = response.json()
                     if results:
@@ -294,6 +327,8 @@ class SkillSystemTUI(App):
                         content.update(f"Audit Results ({len(results)}):\n\n{text}\n\nUse CLI to run audits")
                     else:
                         content.update("No audit results found. Use CLI to run audits.")
+                elif response.status_code == 401:
+                    content.update("Authentication required. Use CLI to login: ai-skill-system auth login")
                 else:
                     content.update("Failed to load audit results")
         except Exception as e:
@@ -303,7 +338,7 @@ class SkillSystemTUI(App):
         content = self.query_one("#content")
         try:
             with httpx.Client(proxy=None) as client:
-                response = client.post(f"{API_BASE}/logs", json={"limit": 20})
+                response = client.post(f"{API_BASE}/logs", json={"limit": 20}, headers=get_auth_headers())
                 if response.status_code == 200:
                     logs = response.json()
                     if logs:
@@ -311,6 +346,8 @@ class SkillSystemTUI(App):
                         content.update(f"Recent Logs:\n\n{text}")
                     else:
                         content.update("No logs found")
+                elif response.status_code == 401:
+                    content.update("Authentication required. Use CLI to login: ai-skill-system auth login")
                 else:
                     content.update("Failed to load logs")
         except Exception as e:
