@@ -1,27 +1,31 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Skill Evaluation Schema",
-  "description": "Test cases and results for skill evaluation",
-  
+  "description": "Test cases, workspace runs, grading results, and benchmark outputs for skill evaluation",
+
   "definitions": {
     "assertion": {
       "type": "object",
       "properties": {
         "type": {
-          "enum": ["contains", "not_contains", "format", "regex", "length", "custom"],
+          "enum": ["contains", "not_contains", "format", "regex", "length", "custom", "script"],
           "description": "Type of assertion to check"
         },
         "value": {
-          "description": "Expected value or pattern"
+          "description": "Expected value, pattern, or script config"
         },
         "description": {
           "type": "string",
           "description": "Human-readable assertion description"
+        },
+        "script": {
+          "type": "string",
+          "description": "Optional path to programmatic assertion script"
         }
       },
       "required": ["type", "value"]
     },
-    
+
     "test_case": {
       "type": "object",
       "properties": {
@@ -67,11 +71,11 @@
       },
       "required": ["id", "prompt", "assertions"]
     },
-    
+
     "assertion_result": {
       "type": "object",
       "properties": {
-        "claim": {
+        "text": {
           "type": "string",
           "description": "What was being checked"
         },
@@ -83,92 +87,80 @@
           "description": "Proof from output supporting pass/fail"
         }
       },
-      "required": ["claim", "passed", "evidence"]
+      "required": ["text", "passed", "evidence"]
     },
-    
+
+    "run_metrics": {
+      "type": "object",
+      "properties": {
+        "output": {"type": "string"},
+        "assertions": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/assertion_result"}
+        },
+        "tokens": {"type": "integer"},
+        "latency_ms": {"type": "integer"},
+        "passed": {"type": "boolean"},
+        "error": {"type": "string"}
+      }
+    },
+
     "test_result": {
       "type": "object",
       "properties": {
         "test_id": {"type": "integer"},
         "iteration": {"type": "integer"},
         "timestamp": {"type": "string", "format": "date-time"},
-        "with_skill": {
-          "type": "object",
-          "properties": {
-            "output": {"type": "string"},
-            "assertions": {
-              "type": "array",
-              "items": {"$ref": "#/definitions/assertion_result"}
-            },
-            "tokens": {"type": "integer"},
-            "latency_ms": {"type": "integer"},
-            "error": {"type": "string"}
-          }
-        },
-        "baseline": {
-          "type": "object",
-          "properties": {
-            "output": {"type": "string"},
-            "assertions": {
-              "type": "array",
-              "items": {"$ref": "#/definitions/assertion_result"}
-            },
-            "tokens": {"type": "integer"},
-            "latency_ms": {"type": "integer"},
-            "error": {"type": "string"}
-          }
-        }
+        "with_skill": {"$ref": "#/definitions/run_metrics"},
+        "baseline": {"$ref": "#/definitions/run_metrics"}
       },
       "required": ["test_id", "iteration", "with_skill", "baseline"]
     },
-    
+
+    "benchmark_summary": {
+      "type": "object",
+      "properties": {
+        "pass_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "avg_tokens": {"type": "number"},
+        "avg_time_ms": {"type": "number"},
+        "stddev_tokens": {"type": "number"},
+        "stddev_time_ms": {"type": "number"},
+        "total_tests": {"type": "integer"},
+        "passed_tests": {"type": "integer"}
+      }
+    },
+
     "benchmark": {
       "type": "object",
       "properties": {
         "iteration": {"type": "integer"},
         "timestamp": {"type": "string", "format": "date-time"},
-        "with_skill": {
+        "with_skill": {"$ref": "#/definitions/benchmark_summary"},
+        "baseline": {"$ref": "#/definitions/benchmark_summary"},
+        "delta": {
           "type": "object",
           "properties": {
-            "pass_rate": {"type": "number", "minimum": 0, "maximum": 1},
-            "avg_tokens": {"type": "number"},
-            "avg_latency_ms": {"type": "number"},
-            "total_tests": {"type": "integer"},
-            "passed_tests": {"type": "integer"}
-          }
-        },
-        "baseline": {
-          "type": "object",
-          "properties": {
-            "pass_rate": {"type": "number"},
-            "avg_tokens": {"type": "number"},
-            "avg_latency_ms": {"type": "number"}
-          }
-        },
-        "improvements": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "test_id": {"type": "integer"},
-              "description": {"type": "string"}
-            }
-          }
-        },
-        "regressions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "test_id": {"type": "integer"},
-              "description": {"type": "string"}
-            }
+            "pass_rate": {"type": "string"},
+            "tokens": {"type": "string"},
+            "time_ms": {"type": "string"}
           }
         }
+      },
+      "required": ["iteration", "timestamp", "with_skill", "baseline", "delta"]
+    },
+
+    "workspace": {
+      "type": "object",
+      "properties": {
+        "root": {"type": "string"},
+        "iteration": {"type": "integer"},
+        "runs_dir": {"type": "string", "default": "runs"},
+        "grading_file": {"type": "string", "default": "grading.json"},
+        "benchmark_file": {"type": "string", "default": "benchmark.json"}
       }
     }
   },
-  
+
   "type": "object",
   "properties": {
     "skill_name": {
@@ -177,7 +169,10 @@
     },
     "version": {
       "type": "string",
-      "default": "1.0"
+      "default": "2.0"
+    },
+    "workspace": {
+      "$ref": "#/definitions/workspace"
     },
     "evals": {
       "type": "array",
