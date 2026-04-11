@@ -125,7 +125,7 @@ Schema:
   "with_skill": {
     "output": "...",
     "assertions": [
-      {"claim": "...", "passed": true, "evidence": "..."}
+      {"text": "...", "passed": true, "evidence": "..."}
     ],
     "tokens": 1234,
     "latency_ms": 567
@@ -154,6 +154,18 @@ User provides feedback. If empty → done. If not:
 5. Get feedback → repeat
 
 ---
+
+
+## Programmatic Assertions (Preferred)
+
+When an assertion can be checked with code, use a script in `.ai/skills/assertions/` and execute it against output.
+
+Examples:
+- JSON validity checks
+- Length/format checks
+- Structural checks
+
+Prefer script-based grading over subjective LLM-only checks for speed and determinism.
 
 ## Description Optimization
 
