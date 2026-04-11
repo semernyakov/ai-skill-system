@@ -1,0 +1,145 @@
+# AI Skill System - Server Justfile
+
+# Default recipe
+default:
+    @just --list
+
+# Development
+dev:
+    #!/usr/bin/env bash
+    uv run main.py
+
+dev-with-reload:
+    #!/usr/bin/env bash
+    uv run uvicorn server.main:app --reload --host 127.0.0.1 --port 8000
+
+dev-with-debug:
+    #!/usr/bin/env bash
+    uv run uvicorn server.main:app --reload --host 127.0.0.1 --port 8000 --log-level debug
+
+# CLI
+tui:
+    #!/usr/bin/env bash
+    uv run ai-skill-system-tui
+
+cli *args:
+    #!/usr/bin/env bash
+    uv run ai-skill-system {{args}}
+
+# Database
+db-init:
+    #!/usr/bin/env bash
+    uv run python -m server.db.init_db
+
+db-migrate:
+    #!/usr/bin/env bash
+    uv run alembic upgrade head
+
+db-reset:
+    #!/usr/bin/env bash
+    rm -f ai_skill_system.db
+    @just db-init
+
+# Testing
+test:
+    #!/usr/bin/env bash
+    uv run pytest
+
+test-coverage:
+    #!/usr/bin/env bash
+    uv run pytest --cov=server --cov-report=html
+
+test-watch:
+    #!/usr/bin/env bash
+    uv run pytest-watch
+
+# Code Quality
+lint:
+    #!/usr/bin/env bash
+    uv run ruff check .
+
+lint-fix:
+    #!/usr/bin/env bash
+    uv run ruff check --fix .
+
+format:
+    #!/usr/bin/env bash
+    uv run ruff format .
+
+format-check:
+    #!/usr/bin/env bash
+    uv run ruff format --check .
+
+bandit:
+    #!/usr/bin/env bash
+    uv run bandit -r server/
+
+# Dependencies
+sync:
+    #!/usr/bin/env bash
+    uv sync
+
+sync-dev:
+    #!/usr/bin/env bash
+    uv sync --group dev
+
+add package:
+    #!/usr/bin/env bash
+    uv add {{package}}
+
+add-dev package:
+    #!/usr/bin/env bash
+    uv add --group dev {{package}}
+
+# Cache
+clear-cache:
+    #!/usr/bin/env bash
+    uv run ai-skill-system-clear-cache
+
+clear-python-cache:
+    #!/usr/bin/env bash
+    uv run ai-skill-system-clear-python-cache
+
+clear-redis-cache:
+    #!/usr/bin/env bash
+    uv run ai-skill-system-clear-redis-cache
+
+# Help
+help:
+    @echo "Server Commands:"
+    @echo "  Development:"
+    @echo "    just dev                 - Run server (main.py)"
+    @echo "    just dev-with-reload     - Run server with auto-reload"
+    @echo "    just dev-with-debug      - Run server with debug logging"
+    @echo ""
+    @echo "  CLI:"
+    @echo "    just tui                 - Run TUI"
+    @echo "    just cli <args>          - Run CLI with args"
+    @echo ""
+    @echo "  Database:"
+    @echo "    just db-init             - Initialize database"
+    @echo "    just db-migrate          - Run migrations"
+    @echo "    just db-reset            - Reset database"
+    @echo ""
+    @echo "  Testing:"
+    @echo "    just test                - Run tests"
+    @echo "    just test-coverage       - Run tests with coverage"
+    @echo "    just test-watch          - Watch mode for tests"
+    @echo ""
+    @echo "  Code Quality:"
+    @echo "    just lint                - Run linter"
+    @echo "    just lint-fix            - Run linter with auto-fix"
+    @echo "    just format              - Format code"
+    @echo "    just format-check        - Check formatting"
+    @echo "    just bandit              - Run security linter"
+    @echo ""
+    @echo "  Dependencies:"
+    @echo "    just sync                - Sync dependencies"
+    @echo "    just sync-dev            - Sync dev dependencies"
+    @echo "    just add <package>       - Add package"
+    @echo "    just add-dev <package>   - Add dev package"
+    @echo ""
+    @echo "  Cache:"
+    @echo "    just clear-cache         - Clear all caches"
+    @echo "    just clear-python-cache   - Clear Python cache"
+    @echo "    just clear-redis-cache   - Clear Redis cache"

@@ -1,0 +1,144 @@
+# AI Skill System - Client Justfile
+
+# Default recipe
+default:
+    @just --list
+
+# Development
+dev:
+    #!/usr/bin/env bash
+    bun run dev
+
+dev-with-host:
+    #!/usr/bin/env bash
+    bun run dev --host
+
+# Build
+build:
+    #!/usr/bin/env bash
+    bun run build
+
+build-with-analyze:
+    #!/usr/bin/env bash
+    bun run build --analyze
+
+# Preview
+preview:
+    #!/usr/bin/env bash
+    bun run preview
+
+# Testing
+test:
+    #!/usr/bin/env bash
+    bun run test
+
+test-ui:
+    #!/usr/bin/env bash
+    bun run test:ui
+
+test-coverage:
+    #!/usr/bin/env bash
+    bun run test:coverage
+
+# Code Quality
+lint:
+    #!/usr/bin/env bash
+    bun run lint
+
+lint-fix:
+    #!/usr/bin/env bash
+    bun run lint:fix
+
+format:
+    #!/usr/bin/env bash
+    bun run format
+
+format-check:
+    #!/usr/bin/env bash
+    bun run format:check
+
+type-check:
+    #!/usr/bin/env bash
+    bun run type-check
+
+# Dependencies
+sync:
+    #!/usr/bin/env bash
+    bun install
+
+sync-frozen:
+    #!/usr/bin/env bash
+    bun install --frozen-lockfile
+
+add package:
+    #!/usr/bin/env bash
+    bun add {{package}}
+
+add-dev package:
+    #!/usr/bin/env bash
+    bun add -d {{package}}
+
+remove package:
+    #!/usr/bin/env bash
+    bun remove {{package}}
+
+update:
+    #!/usr/bin/env bash
+    bun update
+
+upgrade:
+    #!/usr/bin/env bash
+    bun upgrade
+
+# Cache
+clear-cache:
+    #!/usr/bin/env bash
+    bun pm cache rm
+
+clear-cache-all:
+    #!/usr/bin/env bash
+    bun pm cache rm --all
+
+# TypeScript
+check-types:
+    #!/usr/bin/env bash
+    bun run type-check
+
+# Help
+help:
+    @echo "Client Commands:"
+    @echo "  Development:"
+    @echo "    just dev                 - Run dev server"
+    @echo "    just dev-with-host       - Run dev server with host option"
+    @echo ""
+    @echo "  Build:"
+    @echo "    just build               - Build for production"
+    @echo "    just build-with-analyze   - Build with bundle analysis"
+    @echo ""
+    @echo "  Preview:"
+    @echo "    just preview             - Preview production build"
+    @echo ""
+    @echo "  Testing:"
+    @echo "    just test                - Run tests"
+    @echo "    just test-ui              - Run UI tests"
+    @echo "    just test-coverage       - Run tests with coverage"
+    @echo ""
+    @echo "  Code Quality:"
+    @echo "    just lint                - Run linter"
+    @echo "    just lint-fix            - Run linter with auto-fix"
+    @echo "    just format              - Format code"
+    @echo "    just format-check        - Check formatting"
+    @echo "    just type-check          - Check TypeScript types"
+    @echo ""
+    @echo "  Dependencies:"
+    @echo "    just sync                - Install dependencies"
+    @echo "    just sync-frozen         - Install with frozen lockfile"
+    @echo "    just add <package>       - Add package"
+    @echo "    just add-dev <package>   - Add dev package"
+    @echo "    just remove <package>    - Remove package"
+    @echo "    just update              - Update dependencies"
+    @echo "    just upgrade             - Upgrade to latest"
+    @echo ""
+    @echo "  Cache:"
+    @echo "    just clear-cache         - Clear bun cache"
+    @echo "    just clear-cache-all     - Clear all bun caches"
