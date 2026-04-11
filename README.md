@@ -1,42 +1,42 @@
 # AI Skill System
 
-Cross-IDE система правил и skills для AI-assisted разработки с MCP Gateway для унифицированного доступа к сервисам.
+Cross-IDE system of rules and skills for AI-assisted development with MCP Gateway for unified service access.
 
-## Что внутри
+## What's inside
 
-- `.ai/rules/` — универсальные правила
-- `.ai/skills/` — шаблоны и агенты для skill workflow
-- `.ai/scripts/` — синхронизация, миграции, eval scripts
-- `.ai/mcp/` — MCP Gateway для централизованного доступа к сервисам
+- `.ai/rules/` — universal rules
+- `.ai/skills/` — templates and agents for skill workflow
+- `.ai/scripts/` — synchronization, migrations, eval scripts
+- `.ai/mcp/` — MCP Gateway for centralized service access
 - IDE mirrors: `.cursor/`, `.windsurf/`, `.idea/`
 
-## Быстрый старт
+## Quick start
 
-### Синхронизация правил
+### Rule synchronization
 
 ```bash
 .ai/scripts/sync-all.sh
 ```
 
-### Запуск MCP Gateway
+### Start MCP Gateway
 
 ```bash
 .ai/scripts/start-mcp-gateway.sh
 ```
 
-Gateway будет доступен на `http://localhost:8080`
+Gateway will be available at `http://localhost:8080`
 
-## Командная модель
+## Team model
 
 Solo Founder + Expert Roles:
 Arbitr (Ivan), Vasya, Yosya, Bosya, Manya, Sanya, Kirill.
 
 ## MCP Gateway
 
-Централизованная точка входа для MCP сервисов:
+Centralized entry point for MCP services:
 
-- **Filesystem Service** — операции с файлами через безопасный API
-- **Git Service** (в разработке) — операции с git
-- **GitHub Service** (в разработке) — интеграция с GitHub API
+- **Filesystem Service** — file operations through secure API
+- **Git Service** (in development) — git operations
+- **GitHub Service** (in development) — GitHub API integration
 
-Подробнее: см. `MCP_GATEWAY.md`
+See `MCP_GATEWAY.md` for more details

@@ -1,68 +1,68 @@
-# AI Skill System — Полное руководство
+# AI Skill System — Complete Guide
 
-## Что это такое
+## What it is
 
-AI Skill System — это кросс-IDE платформа для управления правилами и skills для AI-assisted разработки. Система обеспечивает унифицированное поведение AI-ассистентов (Cursor, Windsurf, PyCharm) через централизованные правила, автоматическую синхронизацию и framework для создания/тестирования skills.
+AI Skill System is a cross-IDE platform for managing rules and skills for AI-assisted development. The system provides unified behavior for AI assistants (Cursor, Windsurf, PyCharm) through centralized rules, automatic synchronization, and a framework for creating/testing skills.
 
-## Архитектура
+## Architecture
 
-### Основные компоненты
+### Core Components
 
 ```
 ai-skill-system/
-├── .ai/                          # Источник истины (Source of Truth)
-│   ├── rules/                     # Универсальные правила (*.mdc)
-│   │   ├── 000-core.mdc          # Core правила (token economy)
-│   │   ├── 001-agentic.mdc       # Agentic системы
-│   │   ├── 002-docker.mdc        # Docker стандарты
+├── .ai/                          # Source of Truth
+│   ├── rules/                     # Universal rules (*.mdc)
+│   │   ├── 000-core.mdc          # Core rules (token economy)
+│   │   ├── 001-agentic.mdc       # Agentic systems
+│   │   ├── 002-docker.mdc        # Docker standards
 │   │   ├── 003-team-protocol.mdc # Team protocol
-│   │   ├── 004-k8s.mdc           # Kubernetes стандарты
-│   │   ├── 005-cicd.mdc          # CI/CD стандарты
-│   │   └── 006-api.mdc           # API стандарты
+│   │   ├── 004-k8s.mdc           # Kubernetes standards
+│   │   ├── 005-cicd.mdc          # CI/CD standards
+│   │   └── 006-api.mdc           # API standards
 │   ├── skills/                    # Skill Creator System
-│   │   ├── SKILL_CREATOR.md      # Агент для создания skills
-│   │   ├── SKILL_TEMPLATE.md     # Шаблон для skills
-│   │   ├── agents/               # Eval агенты
-│   │   │   ├── analyzer.md       # Анализ результатов
-│   │   │   ├── comparator.md     # Сравнение итераций
-│   │   │   └── grader.md        # Грейдинг assertions
-│   │   ├── assertions/            # Программные проверки
-│   │   │   ├── check_json.py     # Валидация JSON
-│   │   │   ├── check_format.py   # Валидация формата
+│   │   ├── SKILL_CREATOR.md      # Agent for creating skills
+│   │   ├── SKILL_TEMPLATE.md     # Template for skills
+│   │   ├── agents/               # Eval agents
+│   │   │   ├── analyzer.md       # Result analysis
+│   │   │   ├── comparator.md     # Iteration comparison
+│   │   │   └── grader.md        # Assertion grading
+│   │   ├── assertions/            # Programmatic checks
+│   │   │   ├── check_json.py     # JSON validation
+│   │   │   ├── check_format.py   # Format validation
 │   │   │   └── README.md
-│   │   └── schemas/               # JSON схемы для eval
+│   │   └── schemas/               # JSON schemas for eval
 │   │       └── eval_schema.json
-│   ├── scripts/                   # Автоматизация
-│   │   ├── sync-all.sh           # Синхронизация IDE
+│   ├── scripts/                   # Automation
+│   │   ├── sync-all.sh           # IDE synchronization
 │   │   ├── install-hooks.sh      # Git hooks
-│   │   ├── aggregate_benchmark.py # Агрегация бенчмарков
-│   │   ├── run_eval.py           # Запуск eval
-│   │   ├── migrate-field-names.sh # Миграция полей
-│   │   └── start-mcp-gateway.sh  # Запуск MCP Gateway
+│   │   ├── aggregate_benchmark.py # Benchmark aggregation
+│   │   ├── run_eval.py           # Eval execution
+│   │   ├── migrate-field-names.sh # Field migration
+│   │   └── start-mcp-gateway.sh  # Start MCP Gateway
 │   ├── mcp/                       # MCP Gateway
-│   │   ├── gateway.py            # FastAPI сервер
-│   │   ├── config.json           # Конфигурация сервисов
-│   │   └── services/             # Адаптеры MCP сервисов
-│   │       ├── __init__.py       # Интерфейс адаптеров
-│   │       └── filesystem.py     # Fileservice адаптер
+│   │   ├── gateway.py            # FastAPI server
+│   │   ├── config.json           # Service configuration
+│   │   └── services/             # MCP service adapters
+│   │       ├── __init__.py       # Adapter interface
+│   │       └── filesystem.py     # Filesystem adapter
 │   └── prompts/                   # System prompts
-├── .cursor/                      # Cursor IDE конфигурация (автогенерируемая)
-├── .windsurf/                    # Windsurf IDE конфигурация (автогенерируемая)
-├── .idea/                        # PyCharm IDE конфигурация (автогенерируемая)
+├── .cursor/                      # Cursor IDE configuration (auto-generated)
+├── .windsurf/                    # Windsurf IDE configuration (auto-generated)
+├── .idea/                        # PyCharm IDE configuration (auto-generated)
 ├── evals/                        # Evaluation workspace
-│   └── workspace/                # Структура для итераций
+│   └── workspace/                # Structure for iterations
 │       ├── iteration-1/
 │       ├── iteration-2/
 │       └── template/
-├── TEAM.md                       # Team protocol (организационный слой)
-└── SYSTEM_GUIDE.md               # Этот файл
+├── TEAM.md                       # Team protocol (organizational layer)
+└── SYSTEM_GUIDE.md               # This file
 ```
 
-### Как это работает
+### How it works
 
-#### 1. Правила (.mdc файлы)
+#### 1. Rules (.mdc files)
 
-Файлы `.mdc` (Markdown Config) содержат правила для AI-ассистентов с метаданными:
+`.mdc` (Markdown Config) files contain rules for AI assistants with metadata:
 
 ```yaml
 ---
@@ -77,36 +77,36 @@ alwaysApply: true
 - Generate ONLY diff/changed blocks
 ```
 
-**Ключевые поля:**
-- `description` - описание правила для триггеринга
-- `globs` - к каким файлам применять правило
-- `alwaysApply` - применять ли всегда
+**Key fields:**
+- `description` - rule description for triggering
+- `globs` - which files to apply the rule to
+- `alwaysApply` - whether to always apply
 
-#### 2. Синхронизация IDE
+#### 2. IDE Synchronization
 
-Скрипт `sync-all.sh` копирует правила из `.ai/rules/` в IDE-специфичные директории:
+The `sync-all.sh` script copies rules from `.ai/rules/` to IDE-specific directories:
 
 - **Cursor** → `.cursor/rules/`
-- **Windsurf** → `.windsurf/rules/` + `.windsurfrules` (единый файл)
+- **Windsurf** → `.windsurf/rules/` + `.windsurfrules` (single file)
 - **PyCharm** → `.idea/ai-context.txt` (plain text)
 
-**Автоматизация:** Git pre-commit hook автоматически запускает `sync-all.sh` перед каждым коммитом.
+**Automation:** Git pre-commit hook automatically runs `sync-all.sh` before each commit.
 
 #### 3. Skill Creator System
 
-**Workflow создания skill:**
+**Skill creation workflow:**
 
-1. **Discovery** — сбор требований (что делает skill, когда триггерится)
-2. **Requirements** — deep dive в edge cases, форматы, критерии успеха
-3. **SKILL.md** — создание файла skill с "pushy" описанием
-4. **Test Generation** — генерация тестовых кейсов
-5. **Benchmarking** — запуск eval с assertions
-6. **Optimization** — итеративное улучшение описания
+1. **Discovery** — gathering requirements (what the skill does, when it triggers)
+2. **Requirements** — deep dive into edge cases, formats, success criteria
+3. **SKILL.md** — creating skill file with "pushy" description
+4. **Test Generation** — generating test cases
+5. **Benchmarking** — running eval with assertions
+6. **Optimization** — iterative description improvement
 
 **Programmatic Assertions:**
-- `check_json.py` — валидация JSON
-- `check_format.py` — валидация формата (json/markdown/yaml)
-- Быстрее LLM-грейдинга, детерминированные, переиспользуемые
+- `check_json.py` — JSON validation
+- `check_format.py` — format validation (json/markdown/yaml)
+- Faster than LLM grading, deterministic, reusable
 
 **Evaluation Workspace:**
 ```
@@ -116,14 +116,14 @@ workspace/iteration-1/
 │   │   ├── output.txt
 │   │   └── metadata.json
 │   └── test-1-baseline/
-├── grading.json      # Результаты per-test
-└── benchmark.json    # Агрегированные метрики
+├── grading.json      # Per-test results
+└── benchmark.json    # Aggregated metrics
 ```
 
 #### 4. Team Protocol
 
-**Роли:**
-- **Arbitr (Иван)** — final decision-maker
+**Roles:**
+- **Arbitr (Ivan)** — final decision-maker
 - **Vasya** — Principal Software Engineer (Front)
 - **Yosya** — Principal AI/ML Engineer (Backend)
 - **Bosya** — Principal GeoOps / MlOps / DevOps Engineer
@@ -132,131 +132,131 @@ workspace/iteration-1/
 - **Kirill** — Security & Performance Auditor
 
 **Workflow:**
-1. Proposal (варианты + риски)
+1. Proposal (options + risks)
 2. Arbitr approval (YES/NO/YES with constraints)
-3. Implementation в small steps
-4. Checkpoint + approval после каждого шага
-5. File creation только с явным approval
+3. Implementation in small steps
+4. Checkpoint + approval after each step
+5. File creation only with explicit approval
 
-## Быстрый старт
+## Quick Start
 
-### Установка
+### Installation
 
 ```bash
-# Клонирование репозитория
+# Clone repository
 git clone https://github.com/semernyakov/ai-skill-system.git
 cd ai-skill-system
 
-# Установка git hooks (авто-синхронизация)
+# Install git hooks (auto-synchronization)
 ./.ai/scripts/install-hooks.sh
 
-# Первичная синхронизация
+# Initial synchronization
 ./.ai/scripts/sync-all.sh
 ```
 
-### Использование
+### Usage
 
-#### Для Cursor
+#### For Cursor
 
-Правила автоматически загружаются из `.cursor/rules/` при открытии проекта.
+Rules automatically load from `.cursor/rules/` when opening the project.
 
-#### Для Windsurf
+#### For Windsurf
 
-Правила загружаются из `.windsurf/rules/` или `.windsurfrules`.
+Rules load from `.windsurf/rules/` or `.windsurfrules`.
 
-#### Для PyCharm
+#### For PyCharm
 
 1. Settings → Tools → AI Assistant
 2. Custom Instructions → Attach Context
-3. Выбрать `.idea/ai-context.txt`
+3. Select `.idea/ai-context.txt`
 
 ### MCP Gateway
 
-MCP Gateway — централизованная точка входа для MCP сервисов.
+MCP Gateway — centralized entry point for MCP services.
 
-#### Запуск Gateway
+#### Start Gateway
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 pip install fastapi uvicorn pydantic
 
-# Запуск gateway
+# Start gateway
 ./.ai/scripts/start-mcp-gateway.sh
 ```
 
-Gateway будет доступен на `http://localhost:8080`
+Gateway will be available at `http://localhost:8080`
 
-#### Доступные сервисы
+#### Available Services
 
 **Filesystem Service:**
-- `POST /mcp/filesystem/invoke` — операции с файлами
-  - `read_file` — чтение файла
-  - `write_file` — запись файла
-  - `list_dir` — список директории
-  - `delete_file` — удаление файла
+- `POST /mcp/filesystem/invoke` — file operations
+  - `read_file` — read file
+  - `write_file` — write file
+  - `list_dir` — list directory
+  - `delete_file` — delete file
 
 **API Endpoints:**
-- `GET /mcp/services` — список сервисов
-- `GET /mcp/health/{service_name}` — проверка здоровья
-- `GET /mcp/{service_name}/capabilities` — возможности сервиса
+- `GET /mcp/services` — list of services
+- `GET /mcp/health/{service_name}` — health check
+- `GET /mcp/{service_name}/capabilities` — service capabilities
 
-Подробнее: см. `MCP_GATEWAY.md`
+See `MCP_GATEWAY.md` for more details
 
-### Редактирование правил
+### Editing Rules
 
-**ВАЖНО:** Редактируйте только файлы в `.ai/rules/`!
+**IMPORTANT:** Edit only files in `.ai/rules/`!
 
-После изменений:
+After changes:
 
 ```bash
-# Синхронизация с IDE
+# Synchronize with IDE
 ./.ai/scripts/sync-all.sh
 
-# Git add и commit (hook автоматически запустит sync)
+# Git add and commit (hook will automatically run sync)
 git add .
 git commit -m "Update rules"
 ```
 
-### Создание нового skill
+### Creating a new skill
 
 ```bash
-# Используйте SKILL_CREATOR.md как гайд
-# Создайте SKILL.md в директории вашего проекта
+# Use SKILL_CREATOR.md as a guide
+# Create SKILL.md in your project directory
 ```
 
-### Запуск evaluation
+### Running evaluation
 
 ```bash
-# Подготовка workspace
+# Prepare workspace
 mkdir -p evals/workspace/iteration-1/runs
 
-# Запуск eval
+# Run eval
 python .ai/scripts/run_eval.py evals.json evals/workspace/iteration-1
 
-# Агрегация бенчмарков
+# Aggregate benchmarks
 python .ai/scripts/aggregate_benchmark.py evals/workspace/iteration-1 --skill-name my-skill
 ```
 
-## Ключевые концепции
+## Key Concepts
 
 ### Token Economy
 
-- Отвечать ТОЛЬКО на заданный вопрос
-- Генерировать ТОЛЬКО diff/changed блоки
-- Использовать `# ... existing ...` для неизмененного кода
-- Пропускать docstrings кроме public API
-- Inline comments только для неочевидной логики
+- Answer ONLY the question asked
+- Generate ONLY diff/changed blocks
+- Use `# ... existing ...` for unchanged code
+- Skip docstrings except for public API
+- Inline comments only for non-obvious logic
 
 ### Pushy Descriptions
 
-Описания skills должны быть assertive, а не passive:
+Skill descriptions should be assertive, not passive:
 
-**Плохо:**
+**Bad:**
 ```yaml
 description: How to build a simple fast dashboard
 ```
 
-**Хорошо:**
+**Good:**
 ```yaml
 description: >
   How to build a simple fast dashboard to display data.
@@ -268,7 +268,7 @@ description: >
 
 ### Field Naming (Assertion Results)
 
-Используйте точные имена полей для совместимости с viewer:
+Use exact field names for compatibility with viewer:
 
 ```json
 {
@@ -280,70 +280,70 @@ description: >
 
 ## Troubleshooting
 
-### Правила не синхронизируются
+### Rules not synchronizing
 
 ```bash
-# Ручная синхронизация
+# Manual synchronization
 ./.ai/scripts/sync-all.sh
 
-# Проверка .ai/ директории
+# Check .ai/ directory
 ls -la .ai/
 ```
 
-### Git hooks не работают
+### Git hooks not working
 
 ```bash
-# Переустановка hooks
+# Reinstall hooks
 ./.ai/scripts/install-hooks.sh
 
-# Проверка hook файла
+# Check hook file
 cat .git/hooks/pre-commit
 ```
 
-### Evaluation не запускается
+### Evaluation not running
 
 ```bash
-# Проверка Python зависимостей
+# Check Python dependencies
 python3 --version
 
-# Проверка eval schema
+# Check eval schema
 python3 -m json.tool .ai/skills/schemas/eval_schema.json
 ```
 
-### Markdown linting не работает
+### Markdown linting not working
 
-Markdown linting настроен в `.pre-commit-config.yaml` (markdownlint), но не активен из-за отсутствия зависимостей.
+Markdown linting is configured in `.pre-commit-config.yaml` (markdownlint), but not active due to missing dependencies.
 
-**Для активации требуется одна из опций:**
+**To activate, one of the following options is required:**
 
-**Вариант A:** Установить pre-commit framework
+**Option A:** Install pre-commit framework
 ```bash
 pip install pre-commit
 pre-commit install
 ```
 
-**Вариант B:** Установить markdownlint-cli
+**Option B:** Install markdownlint-cli
 ```bash
 npm install -g markdownlint-cli
 ```
 
-Без установки этих зависимостей markdown linting не будет работать. Конфигурация готова, но требует хотя бы одной зависимости для активации.
+Without installing these dependencies, markdown linting will not work. Configuration is ready but requires at least one dependency to activate.
 
-## Дополнительные ресурсы
+## Additional Resources
 
-- **TEAM.md** — Team protocol и роли
-- **CONTRIBUTING.md** — Инструкции для контрибьюторов
-- **CODE_OF_CONDUCT.md** — Кодекс поведения
-- **SECURITY.md** — Политика безопасности
-- **SUPPORT.md** — Поддержка и FAQ
-- **DISCLAIMER.md** — Отказ от ответственности
-- **CHANGELOG.md** — История изменений
+- **TEAM.md** — Team protocol and roles
+- **CONTRIBUTING.md** — Contributor guidelines
+- **CODE_OF_CONDUCT.md** — Code of conduct
+- **SECURITY.md** — Security policy
+- **SUPPORT.md** — Support and FAQ
+- **DISCLAIMER.md** — Disclaimer
+- **CHANGELOG.md** — Change history
 
-## Лицензия
+## License
 
-MIT License — см. LICENSE.md
+MIT License — see LICENSE.md
 
-## Контакты
+## Contact
 
 - Email: i.s.semernyakov@yandex.ru
 - GitHub: https://github.com/semernyakov/ai-skill-system
