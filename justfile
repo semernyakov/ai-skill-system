@@ -5,133 +5,133 @@ default:
     @just --list
 
 # Server commands
-server:help
-    @just server:help
+server-help:
+    @just server-help
 
-server:dev:
+server-dev:
     #!/usr/bin/env bash
     cd server && uv run main.py
 
-server:dev-with-reload:
+server-dev-reload:
     #!/usr/bin/env bash
     cd server && uv run uvicorn server.main:app --reload --host 127.0.0.1 --port 8000
 
-server:tui:
+server-tui:
     #!/usr/bin/env bash
     uv run ai-skill-system-tui
 
-server:cli *args:
+server-cli *args:
     #!/usr/bin/env bash
     uv run ai-skill-system {{args}}
 
-server:test:
+server-test:
     #!/usr/bin/env bash
     cd server && uv run pytest
 
-server:lint:
+server-lint:
     #!/usr/bin/env bash
     cd server && uv run ruff check .
 
-server:format:
+server-format:
     #!/usr/bin/env bash
     cd server && uv run ruff format .
 
-server:sync:
+server-sync:
     #!/usr/bin/env bash
     uv sync
 
-server:clear-cache:
+server-clear-cache:
     #!/usr/bin/env bash
     uv run ai-skill-system-clear-cache
 
-server:clear-python-cache:
+server-clear-python-cache:
     #!/usr/bin/env bash
     uv run ai-skill-system-clear-python-cache
 
-server:clear-redis-cache:
+server-clear-redis-cache:
     #!/usr/bin/env bash
     uv run ai-skill-system-clear-redis-cache
 
-server:help:
+server-help:
     @echo "Server commands:"
-    @echo "  just server:dev              - Run server (main.py)"
-    @echo "  just server:dev-with-reload   - Run server with auto-reload"
-    @echo "  just server:tui              - Run TUI"
-    @echo "  just server:cli <args>       - Run CLI with args"
-    @echo "  just server:test             - Run tests"
-    @echo "  just server:lint             - Run linter"
-    @echo "  just server:format           - Format code"
-    @echo "  just server:sync             - Sync dependencies"
-    @echo "  just server:clear-cache      - Clear all caches"
-    @echo "  just server:clear-python-cache   - Clear Python cache"
-    @echo "  just server:clear-redis-cache   - Clear Redis cache"
+    @echo "  just server-dev              - Run server (main.py)"
+    @echo "  just server-dev-reload        - Run server with auto-reload"
+    @echo "  just server-tui              - Run TUI"
+    @echo "  just server-cli <args>       - Run CLI with args"
+    @echo "  just server-test             - Run tests"
+    @echo "  just server-lint             - Run linter"
+    @echo "  just server-format           - Format code"
+    @echo "  just server-sync             - Sync dependencies"
+    @echo "  just server-clear-cache      - Clear all caches"
+    @echo "  just server-clear-python-cache   - Clear Python cache"
+    @echo "  just server-clear-redis-cache   - Clear Redis cache"
 
 # Client commands
-client:help
-    @just client:help
+client-help:
+    @just client-help
 
-client:dev:
+client-dev:
     #!/usr/bin/env bash
     cd client && bun run dev
 
-client:build:
+client-build:
     #!/usr/bin/env bash
     cd client && bun run build
 
-client:preview:
+client-preview:
     #!/usr/bin/env bash
     cd client && bun run preview
 
-client:lint:
+client-lint:
     #!/usr/bin/env bash
     cd client && bun run lint
 
-client:sync:
+client-sync:
     #!/usr/bin/env bash
     cd client && bun install
 
-client:clear-cache:
+client-clear-cache:
     #!/usr/bin/env bash
     bun pm cache rm
 
-client:help:
+client-help:
     @echo "Client commands:"
-    @echo "  just client:dev           - Run dev server"
-    @echo "  just client:build         - Build for production"
-    @echo "  just client:preview       - Preview production build"
-    @echo "  just client:lint          - Run linter"
-    @echo "  just client:sync          - Install dependencies"
-    @echo "  just client:clear-cache   - Clear bun cache"
+    @echo "  just client-dev           - Run dev server"
+    @echo "  just client-build         - Build for production"
+    @echo "  just client-preview       - Preview production build"
+    @echo "  just client-lint          - Run linter"
+    @echo "  just client-sync          - Install dependencies"
+    @echo "  just client-clear-cache   - Clear bun cache"
 
 # Database commands
-db:init:
+db-init:
     #!/usr/bin/env bash
     cd server && uv run python -m server.db.init_db
 
-db:migrate:
+db-migrate:
     #!/usr/bin/env bash
     cd server && uv run alembic upgrade head
 
-db:reset:
+db-reset:
     #!/usr/bin/env bash
     rm -f server/ai_skill_system.db
-    @just db:init
+    @just db-init
 
 # MCP Gateway commands
-mcp:start:
+mcp-start:
     #!/usr/bin/env bash
     .ai/scripts/start-mcp-gateway.sh
 
-mcp:help:
+mcp-help:
     @echo "MCP commands:"
-    @echo "  just mcp:start     - Start MCP Gateway"
+    @echo "  just mcp-start     - Start MCP Gateway"
 
 # Rules sync commands
-sync:all:
+sync-all:
     #!/usr/bin/env bash
     .ai/scripts/sync-all.sh
 
-sync:cursor:
+sync-cursor:
     #!/usr/bin/env bash
     .ai/scripts/sync-all.sh
 
@@ -139,29 +139,29 @@ sync:cursor:
 install:
     #!/usr/bin/env bash
     echo "Installing dependencies..."
-    @just server:sync
-    @just client:sync
+    @just server-sync
+    @just client-sync
 
 clean:
     #!/usr/bin/env bash
     echo "Cleaning caches..."
-    @just server:clear-cache
-    @just client:clear-cache
+    @just server-clear-cache
+    @just client-clear-cache
 
 dev:
     #!/usr/bin/env bash
     echo "Starting development environment..."
-    @just server:dev-with-reload &
-    @just client:dev
+    @just server-dev-reload &
+    @just client-dev
 
 help:
     @echo "AI Skill System - Just Commands"
     @echo ""
-    @echo "Server: just server:help"
-    @echo "Client: just client:help"
-    @echo "Database: just db:init, just db:migrate, just db:reset"
-    @echo "MCP: just mcp:help"
-    @echo "Sync: just sync:all"
+    @echo "Server: just server-help"
+    @echo "Client: just client-help"
+    @echo "Database: just db-init, just db-migrate, just db-reset"
+    @echo "MCP: just mcp-help"
+    @echo "Sync: just sync-all"
     @echo "Install: just install"
     @echo "Clean: just clean"
     @echo "Dev: just dev"
