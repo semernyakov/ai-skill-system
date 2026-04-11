@@ -140,6 +140,24 @@ clean:
     just server-clear-cache
     just client-clear-cache
 
+system-init:
+    echo "System initialization..."
+    echo "1. Installing dependencies..."
+    just server-sync
+    just client-sync
+    echo "2. Initializing database..."
+    just db-init
+    echo "3. System initialized successfully!"
+    echo ""
+    echo "Run 'just system-run' to start the development environment"
+
+system-run:
+    echo "Starting system..."
+    echo "1. Starting server with auto-reload..."
+    just server-dev-reload &
+    echo "2. Starting client..."
+    just client-dev
+
 dev:
     echo "Starting development environment..."
     just server-dev-reload &
@@ -155,4 +173,5 @@ help:
     @echo "Sync: just sync-all"
     @echo "Install: just install"
     @echo "Clean: just clean"
+    @echo "System: just system-init (init + db), just system-run (start all)"
     @echo "Dev: just dev"
