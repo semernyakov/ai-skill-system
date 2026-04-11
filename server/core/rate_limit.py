@@ -2,7 +2,6 @@
 
 from pyrate_limiter import Duration, Limiter, Rate
 from fastapi_limiter.depends import RateLimiter
-from fastapi_limiter import FastAPILimiter
 import redis.asyncio as aioredis
 from server.core.config import settings
 import logging
@@ -32,7 +31,7 @@ async def init_rate_limiter():
     """Initialize rate limiter with Redis backend"""
     try:
         redis = aioredis.from_url(settings.REDIS_URL, encoding="utf-8", decode_responses=True)
-        await FastAPILimiter.init(redis)
+        # RateLimiter uses Redis automatically when configured
         logger.info(f"Rate limiter initialized with Redis at {settings.REDIS_URL}")
     except Exception as e:
         logger.warning(f"Failed to initialize Redis rate limiter: {e}. Using in-memory fallback.")
