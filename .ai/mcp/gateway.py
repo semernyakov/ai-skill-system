@@ -15,6 +15,8 @@ import uvicorn
 
 from .services import MCPServiceAdapter
 from .services.filesystem import FilesystemAdapter
+from .services.git import GitAdapter
+from .services.github import GitHubAdapter
 
 
 # Load configuration
@@ -45,6 +47,18 @@ def initialize_services(config: Dict[str, Any]):
         fs_config = services_config["filesystem"]
         if fs_config.get("enabled", True):
             services["filesystem"] = FilesystemAdapter(fs_config.get("config", {}))
+    
+    # Git service
+    if "git" in services_config:
+        git_config = services_config["git"]
+        if git_config.get("enabled", True):
+            services["git"] = GitAdapter(git_config.get("config", {}))
+    
+    # GitHub service
+    if "github" in services_config:
+        github_config = services_config["github"]
+        if github_config.get("enabled", True):
+            services["github"] = GitHubAdapter(github_config.get("config", {}))
 
 
 # Create FastAPI app

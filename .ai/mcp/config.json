@@ -12,6 +12,21 @@
         "allowed_paths": [".ai/", "evals/"],
         "read_only": false
       }
+    },
+    "git": {
+      "enabled": true,
+      "adapter": "git",
+      "config": {
+        "repo_path": "."
+      }
+    },
+    "github": {
+      "enabled": true,
+      "adapter": "github",
+      "config": {
+        "api_token": "${GITHUB_TOKEN}",
+        "default_owner": "semernyakov"
+      }
     }
   }
 }
