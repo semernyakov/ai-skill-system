@@ -23,10 +23,11 @@ def create_admin_user():
             print("Admin user already exists")
             return
         
-        # Create admin user (password: admin123)
+        # Create admin user (password: Admin123!)
+        # Note: In production, change this immediately after first login
         admin = User(
             username="admin",
-            hashed_password=get_password_hash("admin123"),
+            hashed_password=get_password_hash("Admin123!"),
             role=UserRole.ADMIN
         )
         session.add(admin)

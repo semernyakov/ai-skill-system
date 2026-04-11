@@ -23,5 +23,9 @@ class Settings(BaseSettings):
     MCP_GATEWAY_HOST: str = "localhost"
     MCP_GATEWAY_PORT: int = 8080
 
+    JWT_SECRET_KEY: str = "your-secret-key-change-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
 
 settings = Settings()

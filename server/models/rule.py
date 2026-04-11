@@ -41,7 +41,7 @@ class RuleCreate(BaseModel):
     @field_validator('description')
     @classmethod
     def validate_no_sql_injection(cls, v: str) -> str:
-        sql_keywords = ['DROP', 'DELETE', 'UNION', 'INSERT', 'UPDATE', 'ALTER', 'TRUNCATE']
+        sql_keywords = ['DROP', 'DELETE', 'UNION', 'INSERT', 'UPDATE', 'ALTER', 'TRUNCATE', 'EXEC', 'EXECUTE']
         upper_v = v.upper()
         for keyword in sql_keywords:
             if keyword in upper_v:
