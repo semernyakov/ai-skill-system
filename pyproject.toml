@@ -1,0 +1,14 @@
+[project]
+name = "ai-skill-system"
+version = "1.0.0"
+description = "Cross-IDE system for AI-assisted development with MCP gateway"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.5.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

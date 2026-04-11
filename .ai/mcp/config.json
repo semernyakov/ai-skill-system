@@ -1,0 +1,17 @@
+{
+  "gateway": {
+    "host": "localhost",
+    "port": 8080,
+    "log_level": "info"
+  },
+  "services": {
+    "filesystem": {
+      "enabled": true,
+      "adapter": "filesystem",
+      "config": {
+        "allowed_paths": [".ai/", "evals/"],
+        "read_only": false
+      }
+    }
+  }
+}
