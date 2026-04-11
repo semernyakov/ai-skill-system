@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Centralized styling system for all AI Skill System templates */
+
+/* Base styles */
+:root {
+  --color-p0: #ef4444;
+  --color-p1: #f59e0b;
+  --color-p2: #3b82f6;
+  --color-p3: #10b981;
+}
+
+/* Report components */
+.report-container {
+  @apply max-w-7xl mx-auto p-6;
+}
+
+.report-header {
+  @apply bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-8 rounded-lg mb-8;
+}
+
+.report-section {
+  @apply bg-white p-8 rounded-lg shadow-md mb-8;
+}
+
+/* Severity badges */
+.severity-badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.severity-badge.p0 {
+  @apply bg-red-500 text-white;
+}
+
+.severity-badge.p1 {
+  @apply bg-amber-500 text-white;
+}
+
+.severity-badge.p2 {
+  @apply bg-blue-500 text-white;
+}
+
+.severity-badge.p3 {
+  @apply bg-emerald-500 text-white;
+}
+
+/* Finding cards */
+.finding-card {
+  @apply border-l-4 p-4 mb-4 bg-gray-50;
+}
+
+.finding-card.p0 {
+  @apply border-red-500;
+}
+
+.finding-card.p1 {
+  @apply border-amber-500;
+}
+
+.finding-card.p2 {
+  @apply border-blue-500;
+}
+
+.finding-card.p3 {
+  @apply border-emerald-500;
+}
+
+/* Summary cards */
+.summary-card {
+  @apply bg-white p-5 rounded-lg shadow-md;
+}
+
+.summary-card.p0 .value {
+  @apply text-red-500;
+}
+
+.summary-card.p1 .value {
+  @apply text-amber-500;
+}
+
+.summary-card.p2 .value {
+  @apply text-blue-500;
+}
+
+.summary-card.p3 .value {
+  @apply text-emerald-500;
+}
+
+/* Recommendation box */
+.recommendation-box {
+  @apply mt-3 p-3 bg-green-50 rounded-lg text-sm;
+}
+
+/* Chart bars */
+.chart-bar {
+  @apply h-8 rounded flex items-center px-3 text-white text-sm;
+}
+
+.chart-bar.security {
+  @apply bg-red-500;
+}
+
+.chart-bar.performance {
+  @apply bg-amber-500;
+}
+
+.chart-bar.architecture {
+  @apply bg-blue-500;
+}
+
+.chart-bar.compliance {
+  @apply bg-purple-500;
+}

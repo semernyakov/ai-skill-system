@@ -1,0 +1,76 @@
+{
+  "audit_metadata": {
+    "audit_timestamp": "ISO-8601 timestamp",
+    "audit_version": "1.0.0",
+    "project_root": "/path/to/project",
+    "auditor": "system-auditor skill",
+    "duration_seconds": 0
+  },
+  "scope": {
+    "audit_types": ["security", "performance", "architecture", "compliance"],
+    "target_systems": ["python", "docker", "kubernetes", "cicd", "mcp-gateway"],
+    "files_scanned": 0,
+    "files_skipped": 0
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "type": "security",
+      "severity": "P0",
+      "category": "vulnerability",
+      "title": "Hardcoded API key in source code",
+      "file": "src/main.py",
+      "line": 42,
+      "description": "OpenAI API key exposed in source code",
+      "recommendation": "Move to environment variables",
+      "references": [
+        "https://owasp.org/www-project-top-ten/",
+        "CWE-798"
+      ],
+      "remediation_priority": "immediate"
+    }
+  ],
+  "summary": {
+    "total_findings": 0,
+    "by_severity": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0,
+      "P3": 0
+    },
+    "by_type": {
+      "security": 0,
+      "performance": 0,
+      "architecture": 0,
+      "compliance": 0
+    },
+    "by_category": {
+      "vulnerability": 0,
+      "bottleneck": 0,
+      "design_issue": 0,
+      "compliance_violation": 0
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "immediate",
+      "action": "Address all P0 findings before production deployment",
+      "estimated_effort": "hours"
+    },
+    {
+      "priority": "high",
+      "action": "Address P1 findings within 1 week",
+      "estimated_effort": "days"
+    },
+    {
+      "priority": "medium",
+      "action": "Address P2 findings within 1 month",
+      "estimated_effort": "weeks"
+    },
+    {
+      "priority": "low",
+      "action": "Address P3 findings during next maintenance cycle",
+      "estimated_effort": "ongoing"
+    }
+  ]
+}

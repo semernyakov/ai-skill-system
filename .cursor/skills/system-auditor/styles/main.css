@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom components for audit reports */
+.audit-card {
+  @apply bg-white rounded-lg shadow-md p-6;
+}
+
+.audit-header {
+  @apply bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-8 rounded-lg mb-8;
+}
+
+.audit-section {
+  @apply bg-white p-8 rounded-lg shadow-md mb-8;
+}
+
+.audit-finding {
+  @apply border-l-4 p-4 mb-4 bg-gray-50;
+}
+
+.audit-finding.p0 {
+  @apply border-red-500;
+}
+
+.audit-finding.p1 {
+  @apply border-amber-500;
+}
+
+.audit-finding.p2 {
+  @apply border-blue-500;
+}
+
+.audit-finding.p3 {
+  @apply border-emerald-500;
+}
+
+.severity-badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.severity-badge.p0 {
+  @apply bg-red-500 text-white;
+}
+
+.severity-badge.p1 {
+  @apply bg-amber-500 text-white;
+}
+
+.severity-badge.p2 {
+  @apply bg-blue-500 text-white;
+}
+
+.severity-badge.p3 {
+  @apply bg-emerald-500 text-white;
+}
+
+.recommendation-box {
+  @apply mt-3 p-3 bg-green-50 rounded-lg text-sm;
+}

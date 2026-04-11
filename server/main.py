@@ -1,0 +1,31 @@
+"""AI Skill System - Main FastAPI Application"""
+
+from fastapi import FastAPI
+
+from server.api.v1.mcp import router as mcp_router
+from server.api.v1.rules import router as rules_router
+from server.api.v1.skills import router as skills_router
+from server.core.config import settings
+from server.core.logging import setup_logging
+
+setup_logging()
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    debug=settings.DEBUG,
+)
+
+app.include_router(rules_router)
+app.include_router(skills_router)
+app.include_router(mcp_router)
+
+
+@app.get("/")
+async def root():
+    return {"message": f"{settings.APP_NAME} v{settings.APP_VERSION}"}
+
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}

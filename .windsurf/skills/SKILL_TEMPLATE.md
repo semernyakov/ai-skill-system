@@ -37,7 +37,7 @@ Step-by-step, imperative style:
    - Do [concrete action]
    - Use [specific format/tool]
    - Apply [specific logic]
-   
+
    **Why this matters:** [brief context on intent]
 
 3. **Generate Output**
@@ -96,6 +96,62 @@ External resources (loaded on-demand):
 - `references/schema.json` — Data format specification
 - `references/examples.md` — Additional examples
 - `scripts/helper.py` — Executable utility (if deterministic logic)
+
+## Styling with Tailwind CSS
+
+All HTML templates in this project use Tailwind CSS for consistent styling.
+
+### HTML Template Structure
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        p0: '#ef4444',
+                        p1: '#f59e0b',
+                        p2: '#3b82f6',
+                        p3: '#10b981',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Your content using Tailwind utility classes -->
+</body>
+</html>
+```
+
+### Using Centralized CSS Components
+
+Reference centralized components from `.ai/skills/styles/main.css`:
+- `.report-container` - Main container
+- `.report-header` - Gradient header
+- `.severity-badge` - Severity indicators
+- `.finding-card` - Finding cards with severity colors
+
+### Severity Color System
+
+- **P0 (Critical):** `text-red-500`, `bg-red-500`
+- **P1 (High):** `text-amber-500`, `bg-amber-500`
+- **P2 (Medium):** `text-blue-500`, `bg-blue-500`
+- **P3 (Low):** `text-emerald-500`, `bg-emerald-500`
+
+### Base Template
+
+Use `.ai/skills/templates/base.html` as starting point for new HTML templates.
+
+See `.ai/skills/templates/README.md` for complete styling documentation.
 
 ## Testing Assertions
 

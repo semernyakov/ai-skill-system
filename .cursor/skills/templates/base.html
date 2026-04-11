@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        p0: '#ef4444',
+                        p1: '#f59e0b',
+                        p2: '#3b82f6',
+                        p3: '#10b981',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-8 rounded-lg mb-8">
+            <h1 class="text-4xl font-bold mb-4">{header_title}</h1>
+            <div class="opacity-90 space-y-1">
+                <p><strong>Date:</strong> {date}</p>
+                <p><strong>Project:</strong> {project}</p>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="bg-white p-8 rounded-lg shadow-md">
+            {content}
+        </div>
+    </div>
+</body>
+</html>
