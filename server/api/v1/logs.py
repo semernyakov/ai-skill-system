@@ -71,9 +71,11 @@ async def get_logs_from_redis() -> list[LogEntry]:
     return DEFAULT_LOGS
 
 
-@router.post("", response_model=list[LogEntry])
+@router.get("", response_model=list[LogEntry])
 async def get_logs(
-    request: LogsRequest,
+    service: str | None = None,
+    level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] | None = None,
+    limit: int = 100,
     session: Session = Depends(get_session),
     current_user: User = Depends(require_role(UserRole.VIEWER))
 ):
@@ -81,13 +83,13 @@ async def get_logs(
     logs = await get_logs_from_redis()
     filtered_logs = logs
     
-    if request.service:
-        filtered_logs = [log for log in filtered_logs if log.service == request.service]
+    if service:
+        filtered_logs = [log for log in filtered_logs if log.service == service]
     
-    if request.level:
-        filtered_logs = [log for log in filtered_logs if log.level == request.level]
+    if level:
+        filtered_logs = [log for log in filtered_logs if log.level == level]
     
-    return filtered_logs[:request.limit]
+    return filtered_logs[:limit]
 
 
 @router.get("/stream")
