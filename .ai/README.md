@@ -25,7 +25,7 @@ curl -fsSL https://bun.sh/install | bash
 # Install dependencies
 bun install
 
-# Sync to all IDEs
+# Sync to all IDEs (including .aiassistant/rules/ for PyCharm)
 .ai/scripts/sync-all.sh
 
 # Auto-sync on git commits
@@ -55,9 +55,16 @@ Rules auto-load from `.cursor/rules/`.
 Rules load from `.windsurf/rules/` or `.windsurfrules` file.
 
 ### PyCharm
-1. Open Settings → Tools → AI Assistant
-2. Under "Custom Instructions", click "Attach Context"
+**Official (recommended):**
+1. Open Settings (Ctrl+Alt+S) → Tools → AI Assistant → Rules
+2. Files in `.aiassistant/rules/` are auto-detected
+3. Set Rule type: Always (rules), Manually (skills), By file patterns (domain-specific)
+
+**Alternative:**
+1. Open Settings → Tools → AI Assistant → Rules
+2. Click New Project Rules File
 3. Select `.idea/ai-context.txt`
+4. Set Rule type to Always
 
 ## Editing Rules
 

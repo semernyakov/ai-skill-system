@@ -1,0 +1,71 @@
+<!-- PyCharm AI Project Rule -->
+<!-- Source: .ai/rules/007-frontend.mdc -->
+<!-- Synced: Sun Apr 12 13:35:55 MSK 2026 -->
+<!-- Rule type: Always (apply to all files) -->
+
+---
+description: Frontend development rules for Bun package management
+globs: ["**/package.json", "**/bun.lockb", "**/vite.config.*", "**/tsconfig.json"]
+alwaysApply: false
+---
+
+# FRONTEND — Bun Package Management
+
+## Cache Management (MANDATORY)
+
+**Before EVERY `bun install` in ANY directory:**
+```bash
+bun pm cache rm
+```
+
+**Then install:**
+```bash
+bun install
+```
+
+## Configuration Check
+
+**Verify Bun configuration before install:**
+- Check `bun.lockb` exists (or remove if stale)
+- Verify no competing lock files (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`)
+- Ensure system Bun is being used (not Node.js Bun)
+
+```bash
+which bun  # Should be /usr/local/bin/bun or similar
+bun --version  # Should be system-wide
+```
+
+## Node.js Version
+
+**For any frontend project:**
+- Use Node.js v22+ via nvm: `source ~/.nvm/nvm.sh && nvm use 22`
+- Vite 8.x requires Node.js v22+
+- Vite 5.x works with Node.js v20+
+
+## Dependencies
+
+**Install ONLY via Bun:**
+```bash
+bun add <package>
+bun remove <package>
+bun install
+```
+
+**NEVER use:**
+- `npm install`
+- `yarn install`
+- `pnpm install`
+
+## Testing
+
+**Run tests:**
+```bash
+bun test
+```
+
+## Build
+
+**Build for production:**
+```bash
+bun run build
+```

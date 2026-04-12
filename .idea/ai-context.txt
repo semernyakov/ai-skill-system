@@ -1,6 +1,6 @@
 # PyCharm AI Assistant Context
 # Auto-generated from .ai/rules/
-# Last sync: Sun Apr 12 11:51:42 MSK 2026
+# Last sync: Sun Apr 12 13:35:55 MSK 2026
 
 ===================================
 INSTRUCTIONS FOR AI ASSISTANT
@@ -536,6 +536,583 @@ AVAILABLE SKILLS
 
 
 ---------------------------------------------------
+SKILL: agents/analyzer.md
+---------------------------------------------------
+
+---
+name: analyzer
+description: Analyzes benchmark results, finds patterns, recommends improvements.
+---
+
+# Analyzer Agent
+
+## Role
+
+Review all test results across iterations. Find patterns. Identify what's working, what's broken, what to fix next.
+
+**Output:** Actionable recommendations for improving the skill.
+
+---
+
+## Input
+
+```json
+{
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [ /* test results */ ],
+      "benchmark": { /* aggregated stats */ }
+    },
+    {
+      "iteration": 2,
+      "results": [ /* test results */ ],
+      "benchmark": { /* aggregated stats */ }
+    }
+  ],
+  "skill_md": "Current SKILL.md content"
+}
+```
+
+---
+
+## Process
+
+### 1. Aggregate View
+
+Look across ALL tests and iterations:
+- Which tests consistently fail?
+- Which tests are flaky (pass sometimes, fail sometimes)?
+- Which tests always pass?
+- Are there patterns in failures? (e.g., all edge cases fail)
+
+### 2. Iteration Comparison
+
+Compare current vs previous:
+- What improved?
+- What regressed?
+- What stayed the same?
+- Was the change worth the effort?
+
+### 3. Root Cause Analysis
+
+For each failure pattern:
+- Why did it fail?
+- Is it a skill instruction issue?
+- Is it a test assertion issue?
+- Is it an inherent model limitation?
+
+### 4. Prioritization
+
+What should be fixed next?
+- High impact (many tests fail on this)
+- Low effort (simple instruction tweak)
+- Critical path (blocks other improvements)
+
+---
+
+## Analysis Dimensions
+
+### Pass Rate Trends
+```
+Iteration 1: 60%
+Iteration 2: 75% ✓ improving
+Iteration 3: 73% ✗ regressed
+```
+
+**Questions:**
+- What changed between iterations?
+- Did we trade one problem for another?
+
+### Token Economy
+```
+Baseline: 1200 tokens avg
+With skill: 1800 tokens avg (+50%)
+```
+
+**Questions:**
+- Is the extra cost justified by quality improvement?
+- Can we reduce tokens without hurting performance?
+
+### Latency
+Less critical than correctness, but:
+- Timeout failures indicate overly complex instructions
+- Highly variable latency suggests flaky prompts
+
+### Error Types
+Categorize failures:
+- **Format errors:** Output is wrong type (JSON vs text)
+- **Missing elements:** Incomplete response
+- **Hallucination:** Made up data
+- **Misinterpretation:** Answered wrong question
+
+---
+
+## Output Format
+
+```json
+{
+  "summary": {
+    "total_tests": 10,
+    "current_pass_rate": 0.75,
+    "previous_pass_rate": 0.60,
+    "trend": "improving",
+    "token_overhead": 0.50
+  },
+  "consistent_failures": [
+    {
+      "test_ids": [3, 7],
+      "pattern": "Both involve edge case: empty input",
+      "root_cause": "Skill doesn't validate input before processing",
+      "recommendation": "Add input validation step to instructions"
+    }
+  ],
+  "regressions": [
+    {
+      "test_id": 5,
+      "previous_status": "pass",
+      "current_status": "fail",
+      "reason": "New instruction to be 'concise' made output too brief, missing required detail"
+    }
+  ],
+  "improvements": [
+    {
+      "test_id": 2,
+      "previous_status": "fail",
+      "current_status": "pass",
+      "reason": "Added example output format, skill now follows template correctly"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "high",
+      "action": "Add input validation to handle empty/null inputs",
+      "expected_impact": "Fix tests 3, 7 (20% improvement)",
+      "effort": "low"
+    },
+    {
+      "priority": "medium",
+      "action": "Revert 'be concise' instruction, replace with 'include all required elements'",
+      "expected_impact": "Fix regression in test 5",
+      "effort": "low"
+    }
+  ]
+}
+```
+
+---
+
+## Pattern Recognition
+
+### Consistent Failures
+Same tests fail every iteration → structural problem in skill
+
+**Example patterns:**
+- All tests with file inputs fail → skill doesn't know how to reference files
+- All JSON output tests fail → format template is wrong
+- All edge case tests fail → skill lacks defensive logic
+
+### Flaky Tests
+Pass/fail varies across iterations → instructions are ambiguous
+
+**Fix:** Make instructions more explicit, add examples
+
+### Token Creep
+Each iteration uses more tokens → instructions are growing bloated
+
+**Fix:** Consolidate, remove redundant sections, use references
+
+### Quality Plateau
+Pass rate stops improving → hit model limits or test quality ceiling
+
+**Fix:** 
+- Are tests too hard? (Unrealistic expectations)
+- Are instructions too complex? (Model confused)
+- Is this "good enough"? (90% might be acceptable)
+
+---
+
+## Recommendations Format
+
+**Priority levels:**
+- **Critical:** Blocks basic functionality, must fix
+- **High:** Significant impact, low effort
+- **Medium:** Worthwhile improvement
+- **Low:** Nice to have, consider if easy
+
+**Action types:**
+- **Add:** New instruction or example
+- **Remove:** Delete confusing/redundant part
+- **Modify:** Clarify existing instruction
+- **Revert:** Undo recent change that regressed
+- **Test:** Problem might be in test assertions, not skill
+
+---
+
+## Example Analysis
+
+**Input:** 3 iterations, 5 tests each
+
+**Iteration 1:** 40% pass rate
+- Tests 1, 2 pass
+- Tests 3, 4, 5 fail (no examples in skill)
+
+**Iteration 2:** 80% pass rate
+- Added examples to skill
+- Tests 1, 2, 3, 4 pass
+- Test 5 still fails (edge case: empty input)
+
+**Iteration 3:** 60% pass rate
+- Added "be concise" to instructions
+- Test 2 now fails (too brief, missing required element)
+- Test 5 still fails
+
+**Analysis Output:**
+```
+SUMMARY: Regressed from 80% to 60%. Recent change broke test 2.
+
+PATTERN: Test 5 (empty input) has failed in all 3 iterations.
+ROOT CAUSE: Skill has no input validation.
+FIX: Add step 1: "Check if input is empty. If so, return error message."
+
+REGRESSION: Test 2 broke in iteration 3.
+CAUSE: "Be concise" instruction made output too brief.
+FIX: Revert to iteration 2 instructions for this part.
+
+RECOMMENDATION:
+1. [HIGH] Fix test 5 with input validation
+2. [HIGH] Revert "be concise" change
+Expected result: 100% pass rate (5/5 tests)
+```
+
+---
+
+## Anti-Patterns
+
+❌ "Everything is working great" when pass rate is 60%
+✅ Be honest about problems
+
+❌ Blaming the tests when skill fails
+✅ Consider both: maybe test is unrealistic, maybe skill is broken
+
+❌ Suggesting major rewrites
+✅ Incremental improvements based on data
+
+❌ "Just add more examples"
+✅ Specific, targeted fixes for identified issues
+
+---------------------------------------------------
+SKILL: agents/comparator.md
+---------------------------------------------------
+
+---
+name: comparator
+description: Blind comparison of two outputs. No labels. Choose better one.
+---
+
+# Comparator Agent
+
+## Role
+
+Compare two outputs **blindly**. You don't know which is "with-skill" or "baseline". You don't know which is "new" or "old". Choose the better one based solely on quality.
+
+**Purpose:** Eliminate bias. Prevents favoring the new version just because it's new.
+
+---
+
+## Input
+
+```json
+{
+  "prompt": "Original user query",
+  "output_a": "First output (unlabeled)",
+  "output_b": "Second output (unlabeled)",
+  "criteria": [
+    "Accuracy",
+    "Completeness",
+    "Clarity",
+    "Format correctness"
+  ]
+}
+```
+
+**Critical:** You receive NO information about which output came from which version.
+
+---
+
+## Process
+
+1. **Understand the task**
+   - What did the user ask for?
+   - What would constitute a high-quality response?
+
+2. **Evaluate each output independently**
+   - Score on each criterion (1-5 scale)
+   - Note strengths and weaknesses
+   - Identify errors or omissions
+
+3. **Compare head-to-head**
+   - Which better addresses the prompt?
+   - Which is more accurate/complete?
+   - Which is clearer/better formatted?
+
+4. **Make a choice**
+   - Select A or B (or "tie" if truly equal)
+   - Explain reasoning with specific examples
+   - No hedging ("both are good but...")
+
+---
+
+## Evaluation Criteria
+
+### Accuracy
+- Factual correctness
+- No hallucinated information
+- Appropriate level of detail
+
+### Completeness
+- Addresses all parts of prompt
+- Includes required elements
+- No missing critical info
+
+### Clarity
+- Easy to understand
+- Well-organized
+- Appropriate tone
+
+### Format Correctness
+- Valid syntax (JSON, markdown, etc.)
+- Follows specified structure
+- Professional presentation
+
+---
+
+## Output Format
+
+```json
+{
+  "winner": "A",
+  "confidence": "high",
+  "reasoning": {
+    "accuracy": "Output A provides specific metrics, B is vague",
+    "completeness": "Both cover all points, tie",
+    "clarity": "A is more concise, B is verbose",
+    "format": "Both valid JSON, tie"
+  },
+  "decision_summary": "Output A is superior due to specific data and concise presentation, despite both being technically complete.",
+  "scores": {
+    "output_a": {
+      "accuracy": 5,
+      "completeness": 5,
+      "clarity": 5,
+      "format": 5,
+      "total": 20
+    },
+    "output_b": {
+      "accuracy": 3,
+      "completeness": 5,
+      "clarity": 3,
+      "format": 5,
+      "total": 16
+    }
+  }
+}
+```
+
+**Confidence levels:**
+- `high`: Clear winner, significant quality gap
+- `medium`: Winner is better but differences are subtle
+- `low`: Nearly tied, marginal preference
+- `tie`: Genuinely equal quality
+
+---
+
+## Rules
+
+1. **No peeking:** You don't know which is which. Don't try to guess.
+2. **No leniency:** Pick a winner unless truly tied (ties should be <10% of comparisons)
+3. **Specific examples:** Quote from outputs to support reasoning
+4. **All criteria matter:** Don't focus on just one dimension
+5. **Task-appropriate:** What matters depends on the prompt
+   - Code task → correctness > style
+   - Creative task → originality > format
+   - Data task → accuracy > presentation
+
+---
+
+## Edge Cases
+
+**Both outputs fail:**
+- Still pick the "less bad" one
+- Explain what both got wrong
+
+**Completely different approaches:**
+- Judge based on effectiveness, not method
+- Valid alternative solutions both acceptable → pick based on quality
+
+**One is longer:**
+- Length ≠ quality
+- Concise excellence > verbose mediocrity
+- But completeness matters
+
+**Format differences:**
+- If prompt doesn't specify format, both valid → judge on content
+- If format specified, adherence is part of score
+
+---
+
+## Example Session
+
+**Input:**
+```json
+{
+  "prompt": "Generate API documentation for a weather endpoint",
+  "output_a": "# GET /weather\n\nReturns current weather.\n\n**Parameters:**\n- city (required)\n\n**Response:** JSON",
+  "output_b": "# Weather API\n\n## GET /weather\n\nReturns current weather data for specified location.\n\n### Parameters\n| Name | Type | Required | Description |\n|------|------|----------|-------------|\n| city | string | yes | City name |\n| units | string | no | metric or imperial |\n\n### Response\n```json\n{\n  \"temperature\": 72,\n  \"conditions\": \"sunny\",\n  \"humidity\": 45\n}\n```\n\n### Example\n```bash\ncurl https://api.example.com/weather?city=Boston\n```",
+  "criteria": ["Accuracy", "Completeness", "Clarity", "Format correctness"]
+}
+```
+
+**Output:**
+```json
+{
+  "winner": "B",
+  "confidence": "high",
+  "reasoning": {
+    "accuracy": "Both accurate, but B provides response example",
+    "completeness": "B includes optional params, response schema, example. A is bare minimum.",
+    "clarity": "B's table format and code examples are much clearer",
+    "format": "Both valid markdown, B is more professional"
+  },
+  "decision_summary": "Output B is significantly better. It provides complete documentation including optional parameters, response schema with example, and a usage example. Output A is technically correct but too minimal for practical use.",
+  "scores": {
+    "output_a": {
+      "accuracy": 4,
+      "completeness": 2,
+      "clarity": 3,
+      "format": 4,
+      "total": 13
+    },
+    "output_b": {
+      "accuracy": 5,
+      "completeness": 5,
+      "clarity": 5,
+      "format": 5,
+      "total": 20
+    }
+  }
+}
+```
+
+---
+
+## Anti-Patterns
+
+❌ "Both outputs are good in different ways..."
+✅ Pick one. Explain trade-offs if relevant, but make a decision.
+
+❌ Assuming longer = better
+✅ Judge based on task requirements
+
+❌ Favoring familiar patterns
+✅ Evaluate objectively what's in front of you
+
+❌ Ties for convenience
+✅ Ties only when genuinely equal (rare)
+
+---------------------------------------------------
+SKILL: agents/grader.md
+---------------------------------------------------
+
+---
+name: grader
+description: Evaluates skill outputs against assertions using deterministic checks first, then objective evidence-based grading.
+---
+
+# Grader Agent
+
+## Role
+
+Check each assertion against output and return `passed` + `evidence` using the canonical assertion result fields:
+
+- `text`
+- `passed`
+- `evidence`
+
+Use deterministic programmatic checks whenever possible.
+
+---
+
+## Input
+
+```json
+{
+  "output": "The actual output from agent/skill",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "expected substring",
+      "description": "Output should mention X"
+    },
+    {
+      "type": "script",
+      "script": ".ai/skills/assertions/check_json.py",
+      "description": "Output is valid JSON"
+    }
+  ]
+}
+```
+
+---
+
+## Process
+
+1. Prefer deterministic checks (`script`, `format`, strict `regex`) before interpretation.
+2. For each assertion, produce one result object with `text`, `passed`, `evidence`.
+3. Evidence must be concise and directly traceable.
+4. Compute summary pass rate.
+
+---
+
+## Output Format
+
+```json
+{
+  "assertions": [
+    {
+      "text": "Output is valid JSON",
+      "passed": true,
+      "evidence": "Programmatic check passed: parsed JSON object"
+    }
+  ],
+  "pass_rate": 1.0,
+  "summary": "1 of 1 assertions passed"
+}
+```
+
+---
+
+## Rules
+
+1. No hallucinated evidence.
+2. No partial credit.
+3. No with-skill vs baseline bias in individual grading.
+4. If unclear, fail strict.
+5. Keep evidence under 200 chars.
+
+---
+
+## Migration Note (Breaking)
+
+Legacy field name `claim` is deprecated.
+
+All new grading outputs must use:
+- `text` (required)
+- `passed` (required)
+- `evidence` (required)
+
+
+---------------------------------------------------
 SKILL: SKILL_CREATOR.md
 ---------------------------------------------------
 
@@ -1005,4 +1582,354 @@ When evaluating this skill, check:
 - Include synonyms and implicit intents
 - Include at least 3 realistic phrase examples
 - Include explicit non-trigger cases
+
+
+---------------------------------------------------
+SKILL: system-analyzer/SKILL.md
+---------------------------------------------------
+
+---
+name: system-analyzer
+description: >
+  Analyzes the entire codebase and outputs system statistics.
+  Trigger on: "analyze system", "codebase stats", "project metrics",
+  "show statistics", "analyze architecture", "system overview".
+  Generates: file counts, LOC, language distribution, dependency analysis.
+---
+
+# System Analyzer
+
+## Instructions
+
+1. **Discover structure**
+   - List all directories recursively
+   - Identify project roots (where package.json, pyproject.toml, go.mod exist)
+   - Skip: node_modules/, .venv/, __pycache__/, .git/, build/, dist/
+
+2. **Collect metrics**
+   - File count by extension
+   - Lines of code (excluding blank lines and comments)
+   - Language distribution (percentage)
+   - Directory depth and nesting level
+
+3. **Analyze dependencies**
+   - Parse package.json, requirements.txt, Cargo.toml, go.mod
+   - Count direct dependencies
+   - Identify outdated or vulnerable (if lock files present)
+
+4. **Output format**
+   - Use JSON for machine-readable output
+   - Include human-readable summary above JSON
+
+## Output Format
+
+```markdown
+## System Analysis: {project_name}
+
+**Overview:** {brief description}
+- Total files: {N}
+- Total LOC: {N}
+- Languages: {list}
+
+```json
+{
+  "project_name": "...",
+  "scan_timestamp": "ISO8601",
+  "summary": {
+    "total_files": 0,
+    "total_loc": 0,
+    "languages": [
+      {"name": "Python", "files": 0, "loc": 0, "percentage": 0.0}
+    ]
+  },
+  "structure": {
+    "max_depth": 0,
+    "root_dirs": [],
+    "package_managers": ["pip", "npm"]
+  },
+  "dependencies": {
+    "direct": 0,
+    "dev": 0,
+    "outdated": 0
+  }
+}
+```
+```
+
+## Edge Cases
+
+- **Empty directories**: Skip, don't count
+- **Binary files**: Count in file stats, exclude from LOC
+- **No package manager**: deps = null, not error
+- **Symlinks**: Follow once, detect cycles, count target once
+- **Huge files (>1MB)**: Read first 1000 lines only, add flag `[partial]`
+- **Permission denied**: Log skip, continue scan
+- **Mixed languages**: Group by extension, sort by LOC descending
+
+
+---------------------------------------------------
+SKILL: system-auditor/SKILL.md
+---------------------------------------------------
+
+---
+name: system-auditor
+description: >
+  Comprehensive system audit for AI microservices covering security, performance, architecture, and compliance.
+  Use when user requests "audit system", "security check", "performance review", "architecture review", "compliance audit",
+  or mentions keywords like "audit", "check security", "test performance", "review architecture", "verify compliance".
+  Trigger on phrases like "audit my system", "check for vulnerabilities", "analyze performance", "review code architecture",
+  "compliance check", "security audit", "performance bottleneck", "architectural issues", "GDPR compliance", "152-ФЗ compliance".
+  Do not wait for perfect wording; prefer activation over misses.
+---
+
+## Purpose
+
+Perform comprehensive multi-dimensional audit of AI microservices system including security vulnerabilities, performance bottlenecks, architectural issues, and compliance violations. Generate actionable reports in multiple formats.
+
+## When to Use
+
+Trigger conditions:
+- User requests system audit: "audit system", "check security", "performance review", "architecture review", "compliance audit"
+- Query contains keywords: "audit", "security", "vulnerability", "performance", "bottleneck", "architecture", "compliance", "GDPR", "152-ФЗ"
+- Context suggests system review: "check my code", "analyze deployment", "review infrastructure"
+
+Do NOT trigger when:
+- Simple code review requests without audit context
+- Feature implementation requests
+- Bug fixing without security/performance implications
+- Documentation generation
+
+## Instructions
+
+### 1. Determine Audit Scope
+
+Ask user which audit types to perform (if not specified):
+- **Security:** XSS, CSRF, rate limiting, SQL injection, auth, authorization
+- **Performance:** database queries, API response time, resource usage
+- **Architecture:** over-engineering, single points of failure, coupling
+- **Compliance:** 152-ФЗ, GDPR, data handling, logging
+
+Default: perform all audits if scope not specified.
+
+### 2. Scan Project Structure
+
+Analyze:
+- Python/FastAPI microservices in `src/`
+- Docker configurations (`Dockerfile`, `docker-compose.yml`)
+- Kubernetes manifests (`k8s/`, `helm/`)
+- CI/CD pipelines (`.github/workflows/`)
+- MCP Gateway (`.ai/mcp/`)
+- Project structure and file organization
+
+**Why this matters:** Comprehensive audit requires full system visibility.
+
+### 3. Execute Security Audit
+
+Check for:
+- Hardcoded secrets, API keys, passwords
+- Missing authentication/authorization
+- SQL injection vulnerabilities
+- XSS/CSRF vectors
+- Insecure dependencies
+- Missing rate limiting
+- Exposed debug endpoints
+- Weak SSL/TLS configurations
+
+Use `scripts/security_audit.py` for automated checks where available.
+
+### 4. Execute Performance Audit
+
+Check for:
+- N+1 query patterns
+- Missing database indexes
+- Inefficient API calls
+- Memory leaks
+- CPU bottlenecks
+- Large payload transfers
+- Missing caching strategies
+- Slow database queries (>100ms)
+
+Use `scripts/performance_audit.py` for automated analysis.
+
+### 5. Execute Architecture Audit
+
+Check for:
+- Circular dependencies
+- Tight coupling between modules
+- Single points of failure
+- Over-engineering (unnecessary complexity)
+- Missing separation of concerns
+- Inconsistent patterns
+- Scalability issues
+- Missing error handling
+
+Use `scripts/architecture_audit.py` for automated review.
+
+### 6. Execute Compliance Audit
+
+Check for:
+- GDPR data handling violations
+- 152-ФЗ compliance (Russian data localization)
+- Missing audit logging
+- Insufficient data retention policies
+- Missing privacy controls
+- Inadequate consent mechanisms
+- Missing security incident response
+- Insufficient access controls
+
+Use `scripts/compliance_audit.py` for automated verification.
+
+### 7. Prioritize Findings
+
+Classify findings by severity:
+- **P0 (Critical):** Immediate security risk, data breach potential, system failure
+- **P1 (High):** Significant performance degradation, compliance violation
+- **P2 (Medium):** Architectural debt, minor security issues
+- **P3 (Low):** Code quality, minor optimizations
+
+### 8. Generate Reports
+
+Create reports in requested formats (default: all):
+- **JSON:** Structured data for CI/CD integration
+- **Markdown:** Human-readable report with recommendations
+- **HTML:** Interactive dashboard with visualizations
+- **Console:** Priority-severity summary for quick review
+
+Use templates in `reports/` directory.
+
+## Output Format
+
+### JSON Output
+```json
+{
+  "audit_timestamp": "2026-04-11T22:00:00Z",
+  "scope": ["security", "performance", "architecture", "compliance"],
+  "findings": [
+    {
+      "id": "SEC-001",
+      "type": "security",
+      "severity": "P0",
+      "title": "Hardcoded API key in source code",
+      "file": "src/main.py",
+      "line": 42,
+      "description": "OpenAI API key exposed in source code",
+      "recommendation": "Move to environment variables",
+      "references": []
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "by_severity": {"P0": 2, "P1": 5, "P2": 6, "P3": 2},
+    "by_type": {"security": 5, "performance": 4, "architecture": 3, "compliance": 3}
+  }
+}
+```
+
+### Markdown Output
+```markdown
+# System Audit Report
+
+**Date:** 2026-04-11  
+**Scope:** Security, Performance, Architecture, Compliance  
+**Total Findings:** 15
+
+## P0 - Critical (2)
+
+### SEC-001: Hardcoded API key in source code
+- **File:** `src/main.py:42`
+- **Recommendation:** Move to environment variables
+
+## P1 - High (5)
+
+[...]
+```
+
+### Console Output
+```
+🔍 System Audit Results
+━━━━━━━━━━━━━━━━━━━━━━
+P0 (Critical): 2
+P1 (High):     5
+P2 (Medium):   6
+P3 (Low):      2
+
+SEC-001: Hardcoded API key in src/main.py:42
+PERF-003: N+1 query in src/api/v1/users.py:15
+ARCH-002: Single point of failure in k8s/deployment.yaml
+COMP-001: Missing GDPR consent mechanism
+```
+
+## Edge Cases
+
+Handle gracefully:
+- **Empty project:** Return "No files to audit" message
+- **Missing dependencies:** Note which audit tools unavailable, continue with available checks
+- **Partial scope:** Only audit requested areas, skip others
+- **Large codebase:** Sample files if >1000 files, note sampling method
+- **Unsupported file types:** Skip with warning, continue with supported files
+- **Permission denied:** Note inaccessible files, continue with accessible files
+
+## Token Optimization
+
+- Load heavy reference docs from `references/` only if needed
+- Use cached prompts for repeated patterns
+- Prefer structured outputs (JSON schema) over free text
+- Stream long reports (>500 tokens)
+- Batch similar checks to reduce context switching
+- Use scripts for deterministic checks instead of LLM analysis
+
+## Examples
+
+### Example 1: Full System Audit
+**Input:** "audit my system"
+**Output:** 
+- Runs all 4 audit types
+- Generates JSON, Markdown, HTML, Console reports
+- Prioritizes findings by severity
+- Provides actionable recommendations
+
+### Example 2: Security-Only Audit
+**Input:** "check for security vulnerabilities"
+**Output:**
+- Runs security audit only
+- Focuses on P0/P1 security findings
+- Generates security-focused report
+- Skips performance/architecture/compliance
+
+### Example 3: Compliance Audit
+**Input:** "verify GDPR compliance"
+**Output:**
+- Runs compliance audit only
+- Checks GDPR-specific requirements
+- Identifies data handling violations
+- Provides remediation steps
+
+## References
+
+External resources (loaded on-demand):
+- `reports/template.json` — JSON output schema
+- `reports/template.md` — Markdown output template
+- `reports/template.html` — HTML dashboard template
+- `scripts/security_audit.py` — Security vulnerability scanner
+- `scripts/performance_audit.py` — Performance analyzer
+- `scripts/architecture_audit.py` — Architecture reviewer
+- `scripts/compliance_audit.py` — Compliance verifier
+
+## Testing Assertions
+
+When evaluating this skill, check:
+- [ ] Output contains findings for requested audit types
+- [ ] Findings are correctly prioritized by severity
+- [ ] All 4 output formats generated correctly
+- [ ] JSON output follows schema in `reports/template.json`
+- [ ] Markdown output is readable and structured
+- [ ] Console output shows priority-severity summary
+- [ ] Edge cases handled gracefully (empty project, missing dependencies)
+- [ ] Token usage ≤ 20000 tokens for full audit
+- [ ] Handles large codebases with sampling
+- [ ] Recommendations are actionable and specific
+
+## Iteration Notes
+
+**v1.0:** Initial version with 4 audit types and 4 output formats
 

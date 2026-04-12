@@ -1,6 +1,6 @@
 #!/bin/bash
 # Universal AI Rules Sync Script
-# Syncs .ai/rules to Cursor, Windsurf, and PyCharm
+# Syncs .ai/rules and .ai/skills to Cursor, Windsurf, PyCharm (.idea and .aiassistant)
 
 set -e
 
@@ -16,6 +16,7 @@ SKILLS_DIR=".ai/skills"
 CURSOR_DIR=".cursor"
 WINDSURF_DIR=".windsurf"
 PYCHARM_CONTEXT=".idea/ai-context.txt"
+PYCHARM_RULES_DIR=".aiassistant/rules"
 
 echo -e "${GREEN}🔄 Syncing AI rules to all IDEs...${NC}\n"
 
@@ -31,11 +32,11 @@ sync_dir() {
   local src=$1
   local dest=$2
   local ide_name=$3
-  
+
   if [ -d "$(dirname $dest)" ] || [ "$4" == "force" ]; then
     echo -e "${YELLOW}  → $ide_name${NC}"
     mkdir -p "$dest"
-    
+
     # Use rsync if available, fallback to cp
     if command -v rsync &> /dev/null; then
       rsync -av --delete "$src/" "$dest/" > /dev/null
@@ -43,7 +44,7 @@ sync_dir() {
       rm -rf "$dest"
       cp -r "$src" "$dest"
     fi
-    
+
     echo -e "${GREEN}    ✓ Synced $dest${NC}"
     return 0
   fi
@@ -53,7 +54,7 @@ sync_dir() {
 # 1. CURSOR
 if [ -d ".cursor" ] || [ "$1" == "--force-cursor" ]; then
   sync_dir "$AI_DIR" "$CURSOR_DIR/rules" "Cursor (rules)"
-  
+
   if [ -d "$SKILLS_DIR" ]; then
     sync_dir "$SKILLS_DIR" "$CURSOR_DIR/skills" "Cursor (skills)"
   fi
@@ -64,18 +65,18 @@ fi
 # 2. WINDSURF
 if [ -d ".windsurf" ] || [ "$1" == "--force-windsurf" ]; then
   sync_dir "$AI_DIR" "$WINDSURF_DIR/rules" "Windsurf (rules)"
-  
+
   if [ -d "$SKILLS_DIR" ]; then
     sync_dir "$SKILLS_DIR" "$WINDSURF_DIR/skills" "Windsurf (skills)"
   fi
-  
+
   # Create single .windsurfrules file
   echo -e "${YELLOW}  → Windsurf (.windsurfrules)${NC}"
   {
     echo "# Windsurf AI Rules - Auto-generated from .ai/rules/"
     echo "# Last sync: $(LC_ALL=C date)"
     echo ""
-    
+
     for file in "$AI_DIR"/*.mdc; do
       if [ -f "$file" ]; then
         echo "# ================================================"
@@ -92,13 +93,13 @@ else
   echo -e "${YELLOW}  ⊘ Windsurf not detected (no .windsurf/)${NC}"
 fi
 
-# 3. PYCHARM
+# 3. PYCHARM — .idea/ai-context.txt (legacy consolidated file)
 if [ -d ".idea" ] || [ "$1" == "--force-pycharm" ] || [ "$1" == "--force-all" ]; then
-  echo -e "${YELLOW}  → PyCharm (AI context)${NC}"
-  
+  echo -e "${YELLOW}  → PyCharm (.idea/ai-context.txt)${NC}"
+
   # Create .idea if it doesn't exist
   mkdir -p .idea
-  
+
   {
     echo "# PyCharm AI Assistant Context"
     echo "# Auto-generated from .ai/rules/"
@@ -111,7 +112,7 @@ if [ -d ".idea" ] || [ "$1" == "--force-pycharm" ] || [ "$1" == "--force-all" ];
     echo "These rules apply to ALL code generation in this project."
     echo "Read carefully and follow strictly."
     echo ""
-    
+
     for file in "$AI_DIR"/*.mdc; do
       if [ -f "$file" ]; then
         echo ""
@@ -123,20 +124,31 @@ if [ -d ".idea" ] || [ "$1" == "--force-pycharm" ] || [ "$1" == "--force-all" ];
         echo ""
       fi
     done
-    
-    # Add skills if present
+
+    # Add skills if present (recursive: SKILL.md from subdirs + *.md from root)
     if [ -d "$SKILLS_DIR" ]; then
       echo ""
       echo "==================================="
       echo "AVAILABLE SKILLS"
       echo "==================================="
       echo ""
-      
-      for skill_file in "$SKILLS_DIR"/*.md; do
+
+      # Collect all skill files: root-level *.md and nested */SKILL.md
+      skill_files=()
+      while IFS= read -r -d '' f; do
+        skill_files+=("$f")
+      done < <(find "$SKILLS_DIR" -maxdepth 1 -name "*.md" -print0 2>/dev/null; find "$SKILLS_DIR" -mindepth 2 -name "SKILL.md" -print0 2>/dev/null; find "$SKILLS_DIR" -mindepth 2 -path "*/agents/*.md" -print0 2>/dev/null)
+
+      # Sort and deduplicate
+      IFS=$'\n' sorted_skills=($(sort -u <<<"${skill_files[*]}")); unset IFS
+
+      for skill_file in "${sorted_skills[@]}"; do
         if [ -f "$skill_file" ]; then
+          # Compute relative path for display
+          rel_path="${skill_file#$SKILLS_DIR/}"
           echo ""
           echo "---------------------------------------------------"
-          echo "SKILL: $(basename $skill_file)"
+          echo "SKILL: $rel_path"
           echo "---------------------------------------------------"
           echo ""
           cat "$skill_file"
@@ -145,24 +157,93 @@ if [ -d ".idea" ] || [ "$1" == "--force-pycharm" ] || [ "$1" == "--force-all" ];
       done
     fi
   } > "$PYCHARM_CONTEXT"
-  
+
   echo -e "${GREEN}    ✓ Created $PYCHARM_CONTEXT${NC}"
-  echo -e "${YELLOW}    ℹ Manual step: Attach this file in PyCharm AI Assistant settings${NC}"
 else
   echo -e "${YELLOW}  ⊘ PyCharm not detected (no .idea/)${NC}"
 fi
 
-# 4. Create symlinks if requested
+# 4. PYCHARM — .aiassistant/rules/ (official JetBrains format)
+# Always sync when .idea exists or force flag is used
+if [ -d ".idea" ] || [ -d ".aiassistant" ] || [ "$1" == "--force-pycharm" ] || [ "$1" == "--force-all" ] || [ "$1" == "--force-aiassistant" ]; then
+  echo -e "${YELLOW}  → PyCharm (.aiassistant/rules/)${NC}"
+
+  mkdir -p "$PYCHARM_RULES_DIR"
+
+  # Clean old generated files
+  rm -f "$PYCHARM_RULES_DIR"/*.md 2>/dev/null || true
+
+  synced_count=0
+
+  # Copy rules: .mdc → .md
+  for file in "$AI_DIR"/*.mdc; do
+    if [ -f "$file" ]; then
+      base_name=$(basename "$file" .mdc)
+      dest_file="$PYCHARM_RULES_DIR/${base_name}.md"
+
+      # Add header with rule type hint for PyCharm
+      {
+        echo "<!-- PyCharm AI Project Rule -->"
+        echo "<!-- Source: $file -->"
+        echo "<!-- Synced: $(LC_ALL=C date) -->"
+        echo "<!-- Rule type: Always (apply to all files) -->"
+        echo ""
+        cat "$file"
+      } > "$dest_file"
+
+      echo -e "${GREEN}    ✓ ${base_name}.md${NC}"
+      synced_count=$((synced_count + 1))
+    fi
+  done
+
+  # Copy skills: flatten with prefixes to avoid name collisions
+  if [ -d "$SKILLS_DIR" ]; then
+    # Collect all skill files
+    skill_files=()
+    while IFS= read -r -d '' f; do
+      skill_files+=("$f")
+    done < <(find "$SKILLS_DIR" -maxdepth 1 -name "*.md" -print0 2>/dev/null; find "$SKILLS_DIR" -mindepth 2 -name "SKILL.md" -print0 2>/dev/null; find "$SKILLS_DIR" -mindepth 2 -path "*/agents/*.md" -print0 2>/dev/null)
+
+    IFS=$'\n' sorted_skills=($(sort -u <<<"${skill_files[*]}")); unset IFS
+
+    for skill_file in "${sorted_skills[@]}"; do
+      if [ -f "$skill_file" ]; then
+        rel_path="${skill_file#$SKILLS_DIR/}"
+        # Create safe filename: replace / with -
+        safe_name=$(echo "$rel_path" | sed 's|/|-|g')
+        dest_file="$PYCHARM_RULES_DIR/skill-${safe_name}"
+
+        {
+          echo "<!-- PyCharm AI Skill Reference -->"
+          echo "<!-- Source: $skill_file -->"
+          echo "<!-- Synced: $(LC_ALL=C date) -->"
+          echo "<!-- Rule type: Manually (trigger by name) -->"
+          echo ""
+          cat "$skill_file"
+        } > "$dest_file"
+
+        echo -e "${GREEN}    ✓ skill-${safe_name}${NC}"
+        synced_count=$((synced_count + 1))
+      fi
+    done
+  fi
+
+  echo -e "${GREEN}    ✓ Total: $synced_count files in .aiassistant/rules/${NC}"
+else
+  echo -e "${YELLOW}  ⊘ PyCharm (.aiassistant) not detected (no .idea/ or .aiassistant/)${NC}"
+fi
+
+# 5. Create symlinks if requested
 if [ "$1" == "--symlinks" ]; then
   echo -e "\n${YELLOW}📎 Creating symlinks...${NC}"
-  
+
   # Cursor symlinks
   if [ -d ".cursor" ]; then
     ln -sf "../$AI_DIR" "$CURSOR_DIR/rules" 2>/dev/null || true
     [ -d "$SKILLS_DIR" ] && ln -sf "../$SKILLS_DIR" "$CURSOR_DIR/skills" 2>/dev/null || true
     echo -e "${GREEN}  ✓ Cursor symlinks${NC}"
   fi
-  
+
   # Windsurf symlinks
   if [ -d ".windsurf" ]; then
     ln -sf "../$AI_DIR" "$WINDSURF_DIR/rules" 2>/dev/null || true
@@ -176,22 +257,31 @@ echo -e "\n${GREEN}✅ Sync complete!${NC}\n"
 
 # Show what was synced
 echo "📋 Summary:"
-[ -d "$CURSOR_DIR/rules" ] && echo "  • Cursor:    $CURSOR_DIR/rules/"
-[ -f ".windsurfrules" ] && echo "  • Windsurf:  .windsurfrules"
-[ -f "$PYCHARM_CONTEXT" ] && echo "  • PyCharm:   $PYCHARM_CONTEXT"
+[ -d "$CURSOR_DIR/rules" ] && echo "  • Cursor:      $CURSOR_DIR/rules/"
+[ -f ".windsurfrules" ] && echo "  • Windsurf:    .windsurfrules"
+[ -f "$PYCHARM_CONTEXT" ] && echo "  • PyCharm (legacy): $PYCHARM_CONTEXT"
+[ -d "$PYCHARM_RULES_DIR" ] && echo "  • PyCharm (official): $PYCHARM_RULES_DIR/"
 
 echo -e "\n💡 Usage tips:"
 echo "  • Edit rules in $AI_DIR/ only"
 echo "  • Run this script after changes: ./.ai/scripts/sync-all.sh"
 echo "  • Use --symlinks flag to create symlinks instead of copies"
-echo "  • Force sync specific IDE: --force-cursor, --force-windsurf, --force-pycharm"
+echo "  • Force sync specific IDE: --force-cursor, --force-windsurf, --force-pycharm, --force-aiassistant"
 echo "  • Force sync all IDEs (create if missing): --force-all"
+
+# PyCharm setup instructions
+if [ -d "$PYCHARM_RULES_DIR" ]; then
+  echo -e "\n🔧 PyCharm setup:"
+  echo "  1. Open Settings (Ctrl+Alt+S) → Tools → AI Assistant → Rules"
+  echo "  2. The files in .aiassistant/rules/ are auto-detected"
+  echo "  3. Set Rule type to 'Always' for rules, 'Manually' for skills"
+fi
 
 # Check for updates needed
 if command -v git &> /dev/null && git rev-parse --git-dir > /dev/null 2>&1; then
-  if git status --porcelain | grep -q "\.cursor/\|\.windsurf/\|\.windsurfrules\|ai-context.txt"; then
+  if git status --porcelain | grep -q "\.cursor/\|\.windsurf/\|\.windsurfrules\|ai-context.txt\|\.aiassistant/"; then
     echo -e "\n${YELLOW}⚠️  Changes detected. Consider committing:${NC}"
-    echo "  git add .cursor/ .windsurf/ .windsurfrules .idea/ai-context.txt"
+    echo "  git add .cursor/ .windsurf/ .windsurfrules .idea/ai-context.txt .aiassistant/"
     echo "  git commit -m 'sync: Update IDE AI rules'"
   fi
 fi

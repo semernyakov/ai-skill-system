@@ -48,7 +48,16 @@ ai-skill-system/
 │   └── prompts/                   # System prompts
 ├── .cursor/                      # Cursor IDE configuration (auto-generated)
 ├── .windsurf/                    # Windsurf IDE configuration (auto-generated)
-├── .idea/                        # PyCharm IDE configuration (auto-generated)
+├── .windsurfrules                # Windsurf single rules file (auto-generated)
+├── .idea/                        # PyCharm IDE configuration (legacy)
+│   └── ai-context.txt            # Consolidated rules+skills (auto-generated)
+├── .aiassistant/                 # PyCharm official rules (auto-generated)
+│   └── rules/                    # Individual .md files for AI Assistant Rules
+│       ├── 000-core.md           # Core rules (Rule type: Always)
+│       ├── 001-agentic.md        # Agentic systems (Rule type: By file patterns)
+│       ├── ...                   # Other rules
+│       ├── skill-SKILL_CREATOR.md  # Skill creation (Rule type: Manually)
+│       └── skill-system-*.md     # Other skills (Rule type: Manually)
 ├── evals/                        # Evaluation workspace
 │   └── workspace/                # Structure for iterations
 │       ├── iteration-1/
@@ -88,7 +97,8 @@ The `sync-all.sh` script copies rules from `.ai/rules/` to IDE-specific director
 
 - **Cursor** → `.cursor/rules/`
 - **Windsurf** → `.windsurf/rules/` + `.windsurfrules` (single file)
-- **PyCharm** → `.idea/ai-context.txt` (plain text)
+- **PyCharm (legacy)** → `.idea/ai-context.txt` (consolidated text file)
+- **PyCharm (official)** → `.aiassistant/rules/` (individual `.md` files)
 
 **Automation:** Git pre-commit hook automatically runs `sync-all.sh` before each commit.
 
@@ -166,9 +176,23 @@ Rules load from `.windsurf/rules/` or `.windsurfrules`.
 
 #### For PyCharm
 
-1. Settings → Tools → AI Assistant
-2. Custom Instructions → Attach Context
+**Recommended method (official — PyCharm 2025.2+):**
+
+Rules and skills are synced to `.aiassistant/rules/` as individual `.md` files.
+
+1. Open **Settings** (`Ctrl+Alt+S`) → **Tools** → **AI Assistant** → **Rules**
+2. Files in `.aiassistant/rules/` are auto-detected
+3. For each rule file, set **Rule type**:
+   - **Always** — for core rules (000-core.md, 003-team-protocol.md)
+   - **Manually** — for skills (skill-*.md files)
+   - **By file patterns** — for domain-specific rules (docker, k8s, api, etc.)
+
+**Alternative method (legacy):**
+
+1. Settings → Tools → AI Assistant → Rules
+2. Click **New Project Rules File**
 3. Select `.idea/ai-context.txt`
+4. Set Rule type to **Always**
 
 ### MCP Gateway
 
