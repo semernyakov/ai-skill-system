@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./
+        working-directory: ./server
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -67,18 +67,21 @@ jobs:
       - name: Install uv
         run: pip install uv
 
+      - name: Install just
+        run: pip install just
+
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Run Ruff
-        run: uv run ruff check server/
+      - name: Run lint
+        run: just lint
 
   server-test:
     name: Server Test
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./
+        working-directory: ./server
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -91,8 +94,11 @@ jobs:
       - name: Install uv
         run: pip install uv
 
+      - name: Install just
+        run: pip install just
+
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Run pytest
-        run: uv run pytest tests/ -v
+      - name: Run tests
+        run: just test
