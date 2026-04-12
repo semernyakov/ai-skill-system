@@ -102,6 +102,42 @@ The `sync-all.sh` script copies rules from `.ai/rules/` to IDE-specific director
 
 **Automation:** Git pre-commit hook automatically runs `sync-all.sh` before each commit.
 
+#### 2.1 Single Source of Truth (SoT) for rules and skills
+
+To reduce duplication, treat only these directories as canonical:
+
+- `.ai/rules/` — canonical rules
+- `.ai/skills/` — canonical skills
+
+All other IDE-specific artifacts (`.cursor/`, `.windsurf/`, `.windsurfrules`, `.idea/ai-context.txt`, `.aiassistant/rules/`) are generated mirrors and must not be edited manually.
+
+**Recommended options (MVP):**
+
+1. **Copy-based sync (default, safest)**
+   - Command: `./.ai/scripts/sync-all.sh`
+   - Pros: works everywhere (Linux/macOS/Windows/GitHub)
+   - Cons: duplicate files in repo
+
+2. **Symlink-based mirrors (minimal duplication)**
+   - Command: `./.ai/scripts/sync-all.sh --symlinks`
+   - Pros: almost no physical duplication for Cursor/Windsurf folders
+   - Cons: symlink behavior differs on Windows and some CI/archive flows
+
+3. **Hybrid (recommended for current MVP)**
+   - Keep copy-based sync as baseline for compatibility
+   - Enable symlinks only in local dev environments where stable
+   - Keep `.aiassistant/rules/` and `.windsurfrules` generated (they require transformed formats)
+
+**Decision rule:** edit only `.ai/*`, regenerate mirrors via script, and enforce this in PR checks.
+
+**Enforcement command (CI/pre-commit):**
+
+```bash
+./.ai/scripts/sync-all.sh --check-sot
+```
+
+This check fails if mirror files changed without corresponding changes in `.ai/rules/` or `.ai/skills/`.
+
 #### 3. Skill Creator System
 
 **Skill creation workflow:**

@@ -28,6 +28,19 @@ bun install
 .ai/scripts/sync-all.sh
 ```
 
+Source of truth is `.ai/rules/` and `.ai/skills/` only.
+If you want to reduce local duplicates for IDE mirrors, use:
+
+```bash
+.ai/scripts/sync-all.sh --symlinks
+```
+
+To enforce SoT in CI/pre-commit, use:
+
+```bash
+.ai/scripts/sync-all.sh --check-sot
+```
+
 ### Start MCP Gateway
 
 ```bash

@@ -18,6 +18,54 @@ WINDSURF_DIR=".windsurf"
 PYCHARM_CONTEXT=".idea/ai-context.txt"
 PYCHARM_RULES_DIR=".aiassistant/rules"
 
+# Flags
+FORCE_CURSOR=false
+FORCE_WINDSURF=false
+FORCE_PYCHARM=false
+FORCE_AIASSISTANT=false
+FORCE_ALL=false
+USE_SYMLINKS=false
+CHECK_SOT=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --force-cursor) FORCE_CURSOR=true ;;
+    --force-windsurf) FORCE_WINDSURF=true ;;
+    --force-pycharm) FORCE_PYCHARM=true ;;
+    --force-aiassistant) FORCE_AIASSISTANT=true ;;
+    --force-all) FORCE_ALL=true ;;
+    --symlinks) USE_SYMLINKS=true ;;
+    --check-sot) CHECK_SOT=true ;;
+    *)
+      echo -e "${YELLOW}Unknown flag: $arg${NC}"
+      ;;
+  esac
+done
+
+run_sot_check() {
+  if command -v git &> /dev/null && git rev-parse --git-dir > /dev/null 2>&1; then
+    ai_changed=$(git status --porcelain -- .ai/rules .ai/skills 2>/dev/null || true)
+    mirrors_changed=$(git status --porcelain -- .cursor .windsurf .windsurfrules .idea/ai-context.txt .aiassistant/rules 2>/dev/null || true)
+
+    if [ -n "$mirrors_changed" ] && [ -z "$ai_changed" ]; then
+      echo -e "${RED}❌ SoT check failed: IDE mirrors changed without source changes in .ai/rules or .ai/skills${NC}"
+      echo "Fix:"
+      echo "  1) Edit only .ai/rules and .ai/skills"
+      echo "  2) Re-run ./.ai/scripts/sync-all.sh"
+      exit 2
+    fi
+    echo -e "${GREEN}✅ SoT check passed${NC}"
+  else
+    echo -e "${YELLOW}⚠️  SoT check skipped: not a git repository${NC}"
+  fi
+}
+
+# Check-only mode for CI/pre-commit
+if [ "$CHECK_SOT" = true ] && [ "$#" -eq 1 ]; then
+  run_sot_check
+  exit 0
+fi
+
 echo -e "${GREEN}🔄 Syncing AI rules to all IDEs...${NC}\n"
 
 # Check if .ai/rules exists
@@ -52,7 +100,7 @@ sync_dir() {
 }
 
 # 1. CURSOR
-if [ -d ".cursor" ] || [ "$1" == "--force-cursor" ]; then
+if [ -d ".cursor" ] || [ "$FORCE_CURSOR" = true ] || [ "$FORCE_ALL" = true ]; then
   sync_dir "$AI_DIR" "$CURSOR_DIR/rules" "Cursor (rules)"
 
   if [ -d "$SKILLS_DIR" ]; then
@@ -63,7 +111,7 @@ else
 fi
 
 # 2. WINDSURF
-if [ -d ".windsurf" ] || [ "$1" == "--force-windsurf" ]; then
+if [ -d ".windsurf" ] || [ "$FORCE_WINDSURF" = true ] || [ "$FORCE_ALL" = true ]; then
   sync_dir "$AI_DIR" "$WINDSURF_DIR/rules" "Windsurf (rules)"
 
   if [ -d "$SKILLS_DIR" ]; then
@@ -94,7 +142,7 @@ else
 fi
 
 # 3. PYCHARM — .idea/ai-context.txt (legacy consolidated file)
-if [ -d ".idea" ] || [ "$1" == "--force-pycharm" ] || [ "$1" == "--force-all" ]; then
+if [ -d ".idea" ] || [ "$FORCE_PYCHARM" = true ] || [ "$FORCE_ALL" = true ]; then
   echo -e "${YELLOW}  → PyCharm (.idea/ai-context.txt)${NC}"
 
   # Create .idea if it doesn't exist
@@ -165,7 +213,7 @@ fi
 
 # 4. PYCHARM — .aiassistant/rules/ (official JetBrains format)
 # Always sync when .idea exists or force flag is used
-if [ -d ".idea" ] || [ -d ".aiassistant" ] || [ "$1" == "--force-pycharm" ] || [ "$1" == "--force-all" ] || [ "$1" == "--force-aiassistant" ]; then
+if [ -d ".idea" ] || [ -d ".aiassistant" ] || [ "$FORCE_PYCHARM" = true ] || [ "$FORCE_ALL" = true ] || [ "$FORCE_AIASSISTANT" = true ]; then
   echo -e "${YELLOW}  → PyCharm (.aiassistant/rules/)${NC}"
 
   mkdir -p "$PYCHARM_RULES_DIR"
@@ -234,7 +282,7 @@ else
 fi
 
 # 5. Create symlinks if requested
-if [ "$1" == "--symlinks" ]; then
+if [ "$USE_SYMLINKS" = true ]; then
   echo -e "\n${YELLOW}📎 Creating symlinks...${NC}"
 
   # Cursor symlinks
@@ -252,6 +300,11 @@ if [ "$1" == "--symlinks" ]; then
   fi
 fi
 
+# 6. Optional SoT check for CI/pre-commit usage
+if [ "$CHECK_SOT" = true ]; then
+  run_sot_check
+fi
+
 # Summary
 echo -e "\n${GREEN}✅ Sync complete!${NC}\n"
 
@@ -266,6 +319,7 @@ echo -e "\n💡 Usage tips:"
 echo "  • Edit rules in $AI_DIR/ only"
 echo "  • Run this script after changes: ./.ai/scripts/sync-all.sh"
 echo "  • Use --symlinks flag to create symlinks instead of copies"
+echo "  • Use --check-sot to fail when mirrors changed without .ai source changes"
 echo "  • Force sync specific IDE: --force-cursor, --force-windsurf, --force-pycharm, --force-aiassistant"
 echo "  • Force sync all IDEs (create if missing): --force-all"
 

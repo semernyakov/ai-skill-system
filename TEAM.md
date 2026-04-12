@@ -27,3 +27,36 @@ Summary: `TEAM.md` = **who and how decisions are made**, `.ai/rules/*` = **how t
 3. Implementation in small steps
 4. After each step — checkpoint + approval
 5. File creation only with explicit Arbitr approval
+
+## TEAM architecture review mode (MVP-first)
+
+Use this when the request is: "TEAM analyze architecture" (or similar).
+
+### Expected output by role
+
+1. **Dava (Frontend)**
+   - Current frontend topology (routes, state, API adapters)
+   - UX-critical bottlenecks affecting conversion
+   - 3 concrete simplifications for MVP speed
+2. **Manya (UX/Marketing)**
+   - Funnel fit: entry → activation → first value
+   - Copy and UX friction points
+   - KPI impact assumptions (time-to-value, conversion)
+3. **Sanya (Behavioral linguistics)**
+   - Clarity and "human tone" audit for user-facing text
+   - Risky/robotic phrasing + rewrite principles
+4. **Kirill-QA (Security/Performance)**
+   - P0/P1 security findings (auth, rate limits, secrets, CORS)
+   - Performance risks (single points, sync calls, DB hotspots)
+   - Compliance notes (RU 152-FZ / GDPR readiness)
+5. **Ivan (Arbitr)**
+   - Final decision: YES / NO / YES with constraints
+   - Ordered execution plan for MVP only
+
+### Architecture audit structure
+
+- **Section A — As-is architecture (factual)**
+- **Section B — Risks by severity (P0/P1/P2)**
+- **Section C — MVP priorities (next 7-14 days)**
+- **Section D — Deferred items (post-MVP)**
+- **Section E — Explicit Arbitr decision**
