@@ -1,6 +1,6 @@
 <!-- PyCharm AI Project Rule -->
 <!-- Source: .ai/rules/002-docker.mdc -->
-<!-- Synced: Sun Apr 12 16:00:30 MSK 2026 -->
+<!-- Synced: Sun Apr 12 20:23:24 MSK 2026 -->
 <!-- Rule type: Always (apply to all files) -->
 
 ---

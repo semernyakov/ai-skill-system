@@ -224,7 +224,7 @@ Gateway will be available at `http://localhost:8080`
 - `GET /mcp/health/{service_name}` — health check
 - `GET /mcp/{service_name}/capabilities` — service capabilities
 
-See `MCP_GATEWAY.md` for more details
+See `docs/guides/MCP_GATEWAY.md` for more details
 
 ### Editing Rules
 
@@ -359,13 +359,13 @@ Without installing these dependencies, markdown linting will not work. Configura
 
 ## Additional Resources
 
-- **TEAM.md** — Team protocol and roles
-- **CONTRIBUTING.md** — Contributor guidelines
-- **CODE_OF_CONDUCT.md** — Code of conduct
-- **SECURITY.md** — Security policy
-- **SUPPORT.md** — Support and FAQ
-- **DISCLAIMER.md** — Disclaimer
-- **CHANGELOG.md** — Change history
+- **TEAM.md** — Team protocol and roles → `docs/project/TEAM.md`
+- **CONTRIBUTING.md** — Contributor guidelines → `docs/project/CONTRIBUTING.md`
+- **CODE_OF_CONDUCT.md** — Code of conduct → `docs/project/CODE_OF_CONDUCT.md`
+- **SECURITY.md** — Security policy → `docs/security/SECURITY.md`
+- **SUPPORT.md** — Support and FAQ → `docs/support/SUPPORT.md`
+- **DISCLAIMER.md** — Disclaimer → `docs/legal/DISCLAIMER.md`
+- **CHANGELOG.md** — Change history → `docs/project/CHANGELOG.md`
 
 ## License
 

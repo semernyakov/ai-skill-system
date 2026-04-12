@@ -31,7 +31,7 @@ If applicable, add screenshots to help explain your problem.
 
 - OS: [e.g. Ubuntu 20.04, macOS 14.0, Windows 11]
 - IDE: [e.g. Cursor 0.42, Windsurf 1.0, PyCharm 2024.1]
-- Project version: [e.g. from git log or CHANGELOG.md]
+- Project version: [e.g. from git log or docs/project/CHANGELOG.md]
 
 ## Additional context
 

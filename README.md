@@ -49,4 +49,4 @@ Centralized entry point for MCP services:
 - **Git Service** (in development) — git operations
 - **GitHub Service** (in development) — GitHub API integration
 
-See `MCP_GATEWAY.md` for more details
+See `docs/guides/MCP_GATEWAY.md` for more details

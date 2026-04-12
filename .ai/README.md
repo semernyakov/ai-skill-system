@@ -44,7 +44,7 @@ Central entry point for MCP services:
 
 Gateway runs on `http://localhost:8080`
 
-See `MCP_GATEWAY.md` for architecture details.
+See `docs/guides/MCP_GATEWAY.md` for architecture details.
 
 ## IDE-Specific Instructions
 

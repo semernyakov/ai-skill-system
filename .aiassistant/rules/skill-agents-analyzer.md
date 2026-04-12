@@ -1,6 +1,6 @@
 <!-- PyCharm AI Skill Reference -->
 <!-- Source: .ai/skills/agents/analyzer.md -->
-<!-- Synced: Sun Apr 12 16:00:30 MSK 2026 -->
+<!-- Synced: Sun Apr 12 20:23:24 MSK 2026 -->
 <!-- Rule type: Manually (trigger by name) -->
 
 ---

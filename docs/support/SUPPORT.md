@@ -6,9 +6,9 @@ If you need help with the AI Skill System, here are the best ways to get support
 
 ### Documentation
 
-- Check the [README.md](README.md) for project overview
-- Review [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines
-- See [TEAM.md](TEAM.md) for project structure and roles
+- Check the [README.md](../../README.md) for project overview
+- Review [CONTRIBUTING.md](../project/CONTRIBUTING.md) for contribution guidelines
+- See [TEAM.md](../project/TEAM.md) for project structure and roles
 
 ### Community
 
