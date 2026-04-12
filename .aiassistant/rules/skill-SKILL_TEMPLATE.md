@@ -1,6 +1,6 @@
 <!-- PyCharm AI Skill Reference -->
 <!-- Source: .ai/skills/SKILL_TEMPLATE.md -->
-<!-- Synced: Sun Apr 12 13:35:55 MSK 2026 -->
+<!-- Synced: Sun Apr 12 16:00:30 MSK 2026 -->
 <!-- Rule type: Manually (trigger by name) -->
 
 ---

@@ -1,8 +1,3 @@
-<!-- PyCharm AI Skill Reference -->
-<!-- Source: .ai/skills/system-analyzer/SKILL.md -->
-<!-- Synced: Sun Apr 12 16:00:30 MSK 2026 -->
-<!-- Rule type: Manually (trigger by name) -->
-
 ---
 name: system-analyzer
 description: >
