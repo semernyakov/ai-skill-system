@@ -37,7 +37,7 @@ class TokenResponse(BaseModel):
     user_role: str
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[Depends(get_auth_rate_limiter)])
 async def login(
     login_data: LoginRequest,
     session: Session = Depends(get_session)
