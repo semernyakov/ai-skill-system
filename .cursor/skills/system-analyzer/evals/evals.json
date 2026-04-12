@@ -1,0 +1,38 @@
+{
+  "skill_name": "system-analyzer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "analyze the codebase and show me statistics",
+      "assertions": [
+        {"type": "contains", "value": "System Analysis"},
+        {"type": "contains", "value": "total_files"},
+        {"type": "format", "value": "json"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "what languages are used in this project?",
+      "assertions": [
+        {"type": "contains", "value": "languages"},
+        {"type": "contains", "value": "percentage"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "show project metrics and dependency info",
+      "assertions": [
+        {"type": "contains", "value": "dependencies"},
+        {"type": "contains", "value": "scan_timestamp"}
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "analyze system architecture",
+      "assertions": [
+        {"type": "contains", "value": "structure"},
+        {"type": "contains", "value": "max_depth"}
+      ]
+    }
+  ]
+}

@@ -1,15 +1,16 @@
 """System Audit API endpoints"""
 
 from datetime import datetime
+from typing import List
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
-from typing import Literal
-from enum import StrEnum
-from sqlmodel import Session
+from sqlmodel import Session, select
+import json
 
+from server.models.audit import AuditFinding, AuditResult
 from server.core.database import get_session
 from server.core.auth import get_current_user, require_role
-from server.core.redis_client import redis_set_json, redis_get_json, redis_list_append, redis_list_get_all
+from server.core.redis_client import redis_list_append, redis_list_get_all
+from server.core.rate_limit import get_read_rate_limiter, get_write_rate_limiter
 from server.db.models import User, UserRole
 
 router = APIRouter(prefix="/api/v1/audit", tags=["audit"])
@@ -51,7 +52,7 @@ class AuditRequest(BaseModel):
     target: str | None = None
 
 
-@router.post("/run", response_model=AuditResult)
+@router.post("/run", response_model=AuditResult, dependencies=[Depends(get_write_rate_limiter)])
 async def run_audit(
     request: AuditRequest,
     session: Session = Depends(get_session),
@@ -127,8 +128,8 @@ async def run_audit(
     return result
 
 
-@router.get("/results", response_model=list[AuditResult])
-async def get_audit_results(
+@router.get("/results", response_model=list[AuditResult], dependencies=[Depends(get_read_rate_limiter)])
+async def list_audit_results(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
@@ -137,7 +138,7 @@ async def get_audit_results(
     return results
 
 
-@router.get("/results/{audit_id}", response_model=AuditResult)
+@router.get("/results/{audit_id}", response_model=AuditResult, dependencies=[Depends(get_read_rate_limiter)])
 async def get_audit_result(
     audit_id: int,
     session: Session = Depends(get_session),

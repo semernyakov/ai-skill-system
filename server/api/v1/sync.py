@@ -1,13 +1,14 @@
 """IDE Synchronization API endpoints"""
 
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session
 
 from server.core.database import get_session
 from server.core.auth import get_current_user, require_role
 from server.core.redis_client import redis_set_json, redis_get_json
+from server.core.rate_limit import get_read_rate_limiter, get_write_rate_limiter
 from server.db.models import User, UserRole
 
 router = APIRouter(prefix="/api/v1/sync", tags=["sync"])
@@ -25,7 +26,7 @@ class SyncStatus(BaseModel):
     errors: list[str]
 
 
-@router.post("", response_model=SyncStatus)
+@router.post("", response_model=SyncStatus, dependencies=[Depends(get_write_rate_limiter)])
 async def trigger_sync(
     request: SyncRequest,
     session: Session = Depends(get_session),
@@ -51,7 +52,7 @@ async def trigger_sync(
     return sync_status
 
 
-@router.get("/status", response_model=SyncStatus)
+@router.get("/status", response_model=SyncStatus, dependencies=[Depends(get_read_rate_limiter)])
 async def get_sync_status(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)

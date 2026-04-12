@@ -51,7 +51,7 @@ export default function Audit() {
               <div className="space-y-2">
                 {result.findings.map((finding: any, idx: number) => (
                   <div
-                    key={idx}
+                    key={`${result.id}-${idx}`}
                     className={`p-3 rounded ${
                       finding.severity === 'HIGH'
                         ? 'bg-red-100 dark:bg-red-900'

@@ -9,6 +9,7 @@ from sqlmodel import Session
 from server.core.database import get_session
 from server.core.auth import get_current_user, require_role
 from server.core.redis_client import redis_list_append, redis_list_get_all
+from server.core.rate_limit import get_read_rate_limiter
 from server.db.models import User, UserRole
 
 router = APIRouter(prefix="/api/v1/logs", tags=["logs"])
@@ -71,7 +72,7 @@ async def get_logs_from_redis() -> list[LogEntry]:
     return DEFAULT_LOGS
 
 
-@router.get("", response_model=list[LogEntry])
+@router.get("", response_model=list[LogEntry], dependencies=[Depends(get_read_rate_limiter)])
 async def get_logs(
     service: str | None = None,
     level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] | None = None,
@@ -92,7 +93,7 @@ async def get_logs(
     return filtered_logs[:limit]
 
 
-@router.get("/stream")
+@router.get("/stream", dependencies=[Depends(get_read_rate_limiter)])
 async def stream_logs(
     session: Session = Depends(get_session),
     current_user: User = Depends(require_role(UserRole.VIEWER))
