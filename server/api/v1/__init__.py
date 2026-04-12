@@ -1,5 +1,5 @@
 """API v1 endpoints"""
 
-from server.api.v1 import mcp, rules, skills
+from server.api.v1 import rules, skills
 
-__all__ = ["rules", "skills", "mcp"]
+__all__ = ["rules", "skills"]

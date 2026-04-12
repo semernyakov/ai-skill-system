@@ -35,7 +35,6 @@ just dev
 just server:help              # Show server commands
 just server:dev              # Run server (main.py)
 just server:dev-with-reload   # Run server with auto-reload
-just server:tui              # Run TUI
 just server:cli <args>       # Run CLI with args
 just server:test             # Run tests
 just server:lint             # Run linter
@@ -43,7 +42,6 @@ just server:format           # Format code
 just server:sync             # Sync dependencies
 just server:clear-cache      # Clear all caches
 just server:clear-python-cache   # Clear Python cache
-just server:clear-redis-cache   # Clear Redis cache
 ```
 
 ### Client Commands
@@ -91,7 +89,6 @@ cd server
 just dev                     # Run server
 just dev-with-reload          # Run with auto-reload
 just dev-with-debug           # Run with debug logging
-just tui                      # Run TUI
 just cli <args>               # Run CLI
 just db-init                  # Initialize database
 just db-migrate               # Run migrations

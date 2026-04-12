@@ -12,7 +12,6 @@ dependencies = [
     "structlog>=23.2.0",
     "click>=8.1.0",
     "rich>=13.7.0",
-    "textual>=0.47.0",
     "httpx[socks]>=0.25.0",
     "sqlalchemy[asyncio]>=2.0.49",
     "alembic>=1.18.4",
@@ -20,21 +19,15 @@ dependencies = [
     "sqlmodel>=0.0.38",
     "python-jose[cryptography]>=3.5.0",
     "bcrypt>=5.0.0",
-    "slowapi>=0.1.9",
     "bleach>=6.3.0",
-    "fastapi-limiter>=0.2.0",
-    "pyrate-limiter>=2.10.0",
-    "redis>=5.0.0",
     "setuptools>=70.0.0",
     "pyyaml>=6.0.0",
 ]
 
 [project.scripts]
 ai-skill-system = "server.cli.main:cli"
-ai-skill-system-tui = "server.tui.main:main"
 ai-skill-system-clear-cache = "server.cli.main:clear_cache"
 ai-skill-system-clear-python-cache = "server.cli.main:clear_python_cache"
-ai-skill-system-clear-redis-cache = "server.cli.main:clear_redis_cache"
 
 [build-system]
 requires = ["hatchling"]

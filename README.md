@@ -2,16 +2,15 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
-[![Bun](https://img.shields.io/badge/Bun-1.0+-white.svg)](https://bun.sh/)
 
-Cross-IDE system of rules and skills for AI-assisted development with MCP Gateway for unified service access.
+Cross-IDE system of rules and skills for AI-assisted development. MVP stack: FastAPI + SQLite + JWT.
 
 ## What's inside
 
 - `.ai/rules/` — universal rules
 - `.ai/skills/` — templates and agents for skill workflow
 - `.ai/scripts/` — synchronization, migrations, eval scripts
-- `.ai/mcp/` — MCP Gateway for centralized service access
+- `server/` — FastAPI backend with SQLite database
 - IDE mirrors: `.cursor/`, `.windsurf/`, `.idea/`
 
 ## Quick start
@@ -19,59 +18,58 @@ Cross-IDE system of rules and skills for AI-assisted development with MCP Gatewa
 ### Installation
 
 ```bash
-# Install bun (if not already installed)
-curl -fsSL https://bun.sh/install | bash
+# Install Python dependencies
+cd server
+uv sync
 
-# Install dependencies
-bun install
+# Initialize database
+uv run python -m server.db.init_db
 ```
 
-### Rule synchronization
+### Start server
 
 ```bash
-.ai/scripts/sync-all.sh
+cd server
+just dev
 ```
 
-### Start MCP Gateway
+Server will be available at `http://127.0.0.1:8000`
+
+### CLI usage
 
 ```bash
-.ai/scripts/start-mcp-gateway.sh
-```
+# Login
+ai-skill-system auth login
 
-Gateway will be available at `http://localhost:8080`
+# List rules
+ai-skill-system rules list
+
+# List skills
+ai-skill-system skills list
+```
 
 ## Team model
 
 Solo Founder + Expert Roles:
-Arbitr (Ivan), Vasya, Yosya, Bosya, Manya, Sanya, Kirill.
-
-## MCP Gateway
-
-Centralized entry point for MCP services:
-
-- **Filesystem Service** — file operations through secure API
-- **Git Service** (in development) — git operations
-- **GitHub Service** (in development) — GitHub API integration
-
-See `docs/guides/MCP_GATEWAY.md` for more details
+Arbitr (Ivan), Дава, Маня, Саша, Кирилл.
 
 ## Documentation
 
 ### Guides
 - [System Guide](docs/guides/SYSTEM_GUIDE.md) — Complete system architecture and setup
-- [MCP Gateway](docs/guides/MCP_GATEWAY.md) — Gateway architecture and service adapters
 - [Just Guide](docs/guides/JUST_GUIDE.md) — Quick reference for common tasks
+- [API Documentation](docs/API.md) — API endpoints and usage
 
 ### Project
-- [Changelog](docs/project/CHANGELOG.md) — Version history and changes
-- [Contributing](docs/project/CONTRIBUTING.md) — Contribution guidelines
-- [Code of Conduct](docs/project/CODE_OF_CONDUCT.md) — Community guidelines
-- [Team](docs/project/TEAM.md) — Team protocol and roles
-- [Authors](docs/project/AUTHORS.md) — Project contributors
+- [Changelog](CHANGELOG.md) — Version history and changes
+- [Contributing](CONTRIBUTING.md) — Contribution guidelines
+- [Code of Conduct](CODE_OF_CONDUCT.md) — Community guidelines
+- [Team](TEAM.md) — Team protocol and roles
+- [Authors](AUTHORS.md) — Project contributors
 
 ### Security & Legal
-- [Security](docs/security/SECURITY.md) — Security policy and reporting
-- [Disclaimer](docs/legal/DISCLAIMER.md) — Liability and usage terms
+- [Security](SECURITY.md) — Security policy and reporting
+- [Disclaimer](DISCLAIMER.md) — Liability and usage terms
 
 ### Support
-- [Support](docs/support/SUPPORT.md) — Help, FAQ, and common issues
+- [Support](SUPPORT.md) — Help, FAQ, and common issues

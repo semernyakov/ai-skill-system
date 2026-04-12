@@ -6,6 +6,7 @@
     "lint:md": "markdownlint '*.md' '**/*.md'"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "autoprefixer": "^10.4.27",
     "markdownlint-cli": "^0.39.0",
     "postcss": "^8.5.9",

@@ -1,6 +1,7 @@
 """Database session management using SQLModel"""
 
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import Session, SQLModel, create_engine
+
 from server.core.config import settings
 
 engine = create_engine(settings.DATABASE_URL, echo=settings.DEBUG)

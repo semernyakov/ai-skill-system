@@ -1,9 +1,9 @@
 """Rule Pydantic models with validation"""
 
-from datetime import datetime
-from pydantic import BaseModel, Field, ConfigDict, field_validator
-import re
 import json
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Rule(BaseModel):

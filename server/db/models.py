@@ -1,12 +1,12 @@
 """SQLModel database models"""
 
 from datetime import datetime
-from typing import Optional
+from enum import StrEnum
+
 from sqlmodel import Field, SQLModel
-from enum import Enum
 
 
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     ADMIN = "admin"
     EDITOR = "editor"
     VIEWER = "viewer"
@@ -20,13 +20,13 @@ class User(SQLModel, table=True):
 
 
 class Rule(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True, max_length=100)
     description: str = Field(max_length=5000)
     globs: str = Field(default="[]")  # JSON string
     always_apply: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: Optional[datetime] = Field(default=None)
+    updated_at: datetime | None = Field(default=None)
 
     @property
     def globs_list(self) -> list:
@@ -38,20 +38,24 @@ class Rule(SQLModel, table=True):
 
 
 class Skill(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True, max_length=100)
     description: str = Field(max_length=5000)
+    config: str = Field(default="{}")  # JSON: instructions, input/output schemas
+    source: str = Field(default="internal", max_length=50)  # internal/agentskills
+    version: str | None = Field(default=None, max_length=20)  # skill version
+    active: bool = Field(default=True)  # enable/disable skill
     created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: Optional[datetime] = Field(default=None)
+    updated_at: datetime | None = Field(default=None)
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
     LOW = "LOW"
 
 
-class AuditType(str, Enum):
+class AuditType(StrEnum):
     SECURITY = "SECURITY"
     PERFORMANCE = "PERFORMANCE"
     ARCHITECTURE = "ARCHITECTURE"
@@ -59,7 +63,7 @@ class AuditType(str, Enum):
 
 
 class AuditResult(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     audit_type: AuditType
     status: str = Field(default="completed")
     started_at: datetime
@@ -69,8 +73,8 @@ class AuditResult(SQLModel, table=True):
 
 
 class LogEntry(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     timestamp: datetime = Field(default_factory=datetime.now, index=True)
     level: str = Field(index=True, max_length=10)
-    service: Optional[str] = Field(default=None, max_length=50, index=True)
+    service: str | None = Field(default=None, max_length=50, index=True)
     message: str = Field(max_length=10000)

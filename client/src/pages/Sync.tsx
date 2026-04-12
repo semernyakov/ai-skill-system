@@ -5,6 +5,8 @@ export default function Sync() {
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState('');
+  const [skillSyncing, setSkillSyncing] = useState(false);
+  const [skillSyncResult, setSkillSyncResult] = useState<any>(null);
 
   const handleSync = async (forceAll: boolean = false) => {
     setSyncing(true);
@@ -20,12 +22,24 @@ export default function Sync() {
     }
   };
 
+  const handleSkillSync = async () => {
+    setSkillSyncing(true);
+    try {
+      const result = await api.skills.sync();
+      setSkillSyncResult(result);
+    } catch (error) {
+      setSkillSyncResult({ status: 'error', message: 'Skill sync failed' });
+    } finally {
+      setSkillSyncing(false);
+    }
+  };
+
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">IDE Synchronization</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Synchronization</h2>
       
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Sync Status</h3>
+        <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">IDE Sync</h3>
         {syncStatus && (
           <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded text-blue-800 dark:text-blue-200">
             {syncStatus}
@@ -52,6 +66,24 @@ export default function Sync() {
             {syncing ? 'Syncing...' : 'Force Sync All'}
           </button>
         </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Skill Sync (External)</h3>
+        {skillSyncResult && (
+          <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded text-purple-800 dark:text-purple-200">
+            <p>Status: {skillSyncResult.status}</p>
+            {skillSyncResult.synced !== undefined && <p>Synced: {skillSyncResult.synced} skills</p>}
+            {skillSyncResult.failed !== undefined && <p>Failed: {skillSyncResult.failed} skills</p>}
+          </div>
+        )}
+        <button
+          onClick={handleSkillSync}
+          disabled={skillSyncing}
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50"
+        >
+          {skillSyncing ? 'Syncing...' : 'Sync Skills from agentskills'}
+        </button>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">

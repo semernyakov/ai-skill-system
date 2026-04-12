@@ -1,7 +1,7 @@
 """Logging configuration using structlog"""
 
 import structlog
-from server.core.config import settings
+
 
 def setup_logging():
     structlog.configure(

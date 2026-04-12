@@ -1,14 +1,14 @@
 """AI Skill System CLI"""
 
+import json
+import os
+import shutil
+import sys
+
 import click
+import httpx
 from rich.console import Console
 from rich.table import Table
-import httpx
-import shutil
-import os
-import sys
-import subprocess
-import json
 
 console = Console()
 API_BASE = "http://127.0.0.1:8000/api/v1"
@@ -19,7 +19,7 @@ def get_token():
     """Get stored JWT token"""
     try:
         if os.path.exists(TOKEN_FILE):
-            with open(TOKEN_FILE, "r") as f:
+            with open(TOKEN_FILE) as f:
                 data = json.load(f)
                 return data.get("token")
     except Exception:
@@ -368,7 +368,7 @@ def run_sync(force_all):
         response = client.post(f"{API_BASE}/sync", json=data, headers=get_auth_headers())
         if response.status_code == 200:
             result = response.json()
-            console.print(f"[green]Sync completed[/green]")
+            console.print("[green]Sync completed[/green]")
             console.print(f"Status: {result['status']}")
             console.print(f"Targets: {result['targets_synced']}")
         else:
@@ -441,7 +441,7 @@ def generate_audit_report(audit_id, format):
                 console.print(f"Type: {result['audit_type']}")
                 console.print(f"Status: {result['status']}")
                 console.print(f"Summary: {result['summary']}")
-                console.print(f"\nFindings:")
+                console.print("\nFindings:")
                 for finding in result["findings"]:
                     console.print(f"  - [{finding['severity']}] {finding['category']}: {finding['message']}")
                     console.print(f"    Recommendation: {finding['recommendation']}")
@@ -532,10 +532,9 @@ def follow_logs(service):
 
 @click.command()
 def clear_cache():
-    """Clear all caches (Python and Redis)"""
+    """Clear all caches (Python)"""
     console.print("[yellow]Clearing all caches...[/yellow]")
     clear_python_cache()
-    clear_redis_cache()
     console.print("[green]All caches cleared[/green]")
 
 
@@ -544,7 +543,7 @@ def clear_python_cache():
     """Clear Python __pycache__ directories"""
     console.print("[yellow]Clearing Python cache...[/yellow]")
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
+
     count = 0
     for root, dirs, files in os.walk(project_root):
         if "__pycache__" in dirs:
@@ -555,33 +554,8 @@ def clear_python_cache():
                 count += 1
             except Exception as e:
                 console.print(f"[red]Failed to remove {pycache_path}: {e}[/red]")
-    
+
     console.print(f"[green]Removed {count} __pycache__ directories[/green]")
-
-
-@click.command()
-def clear_redis_cache():
-    """Clear Redis cache"""
-    console.print("[yellow]Clearing Redis cache...[/yellow]")
-    try:
-        # Try to clear Redis using redis-cli
-        result = subprocess.run(
-            ["redis-cli", "FLUSHALL"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        if result.returncode == 0:
-            console.print("[green]Redis cache cleared successfully[/green]")
-        else:
-            console.print(f"[red]Failed to clear Redis cache: {result.stderr}[/red]")
-    except FileNotFoundError:
-        console.print("[yellow]redis-cli not found. Redis cache not cleared.[/yellow]")
-        console.print("[yellow]Install redis-cli or clear manually: redis-cli FLUSHALL[/yellow]")
-    except subprocess.TimeoutExpired:
-        console.print("[red]Redis command timed out[/red]")
-    except Exception as e:
-        console.print(f"[red]Error clearing Redis cache: {e}[/red]")
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ export default function SkillsManager() {
   const [skills, setSkills] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [filter, setFilter] = useState<'all' | 'internal' | 'agentskills'>('all');
 
   useEffect(() => {
     loadSkills();
@@ -26,6 +27,18 @@ export default function SkillsManager() {
   const deleteSkill = async (id: number) => {
     await api.skills.delete(id);
     loadSkills();
+  };
+
+  const filteredSkills = skills.filter(skill => {
+    if (filter === 'all') return true;
+    return skill.source === filter;
+  });
+
+  const getSourceBadge = (source: string) => {
+    if (source === 'agentskills') {
+      return <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">External</span>;
+    }
+    return <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Internal</span>;
   };
 
   return (
@@ -64,13 +77,38 @@ export default function SkillsManager() {
         </form>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Skills</h2>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Skills</h2>
+          <div className="space-x-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-3 py-1 rounded text-sm ${filter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-200'}`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter('internal')}
+              className={`px-3 py-1 rounded text-sm ${filter === 'internal' ? 'bg-gray-800 text-white' : 'bg-gray-200'}`}
+            >
+              Internal
+            </button>
+            <button
+              onClick={() => setFilter('agentskills')}
+              className={`px-3 py-1 rounded text-sm ${filter === 'agentskills' ? 'bg-gray-800 text-white' : 'bg-gray-200'}`}
+            >
+              External
+            </button>
+          </div>
+        </div>
         <div className="space-y-2">
-          {skills.map((skill) => (
+          {filteredSkills.map((skill) => (
             <div key={skill.id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded">
-              <div>
-                <p className="font-medium">{skill.name}</p>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{skill.name}</p>
+                  {getSourceBadge(skill.source)}
+                </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">{skill.description}</p>
               </div>
               <button

@@ -114,18 +114,6 @@ pip install -e .
 ai-skill-system --help
 ```
 
-## TUI Deployment
-
-### Install as System Command
-
-```bash
-# Create entry point
-uv run pip install -e .
-
-# Or use directly
-uv run python -m server.tui.main
-```
-
 ## Production Considerations
 
 ### Security

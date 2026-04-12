@@ -82,6 +82,10 @@ client-lint:
     #!/usr/bin/env bash
     cd client && bun run lint
 
+client-format:
+    #!/usr/bin/env bash
+    cd client && bun run format
+
 client-sync:
     #!/usr/bin/env bash
     cd client && bun install
@@ -98,6 +102,7 @@ client-help:
     @echo ""
     @echo "🔧 Maintenance:"
     @echo "  just client-lint          - Check code quality"
+    @echo "  just client-format        - Format code with auto-fix"
     @echo ""
     @echo "📦 Dependencies:"
     @echo "  just client-sync          - Install dependencies"

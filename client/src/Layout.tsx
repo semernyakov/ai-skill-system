@@ -2,6 +2,7 @@ import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import RulesManager from './pages/RulesManager';
 import SkillsManager from './pages/SkillsManager';
+import SkillExecution from './pages/SkillExecution';
 import MCPGateway from './pages/MCPGateway';
 import Audit from './pages/Audit';
 import Sync from './pages/Sync';
@@ -59,6 +60,7 @@ export default function Layout() {
           <NavLink to="/">Dashboard</NavLink>
           <NavLink to="/rules">Rules Manager</NavLink>
           <NavLink to="/skills">Skills Manager</NavLink>
+          <NavLink to="/skills/execute">Skill Execution</NavLink>
           <NavLink to="/mcp">MCP Gateway</NavLink>
           <NavLink to="/audit">Audit</NavLink>
           <NavLink to="/sync">IDE Sync</NavLink>
@@ -78,6 +80,7 @@ export default function Layout() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/rules" element={<RulesManager />} />
           <Route path="/skills" element={<SkillsManager />} />
+          <Route path="/skills/execute" element={<SkillExecution />} />
           <Route path="/mcp" element={<MCPGateway />} />
           <Route path="/audit" element={<Audit />} />
           <Route path="/sync" element={<Sync />} />

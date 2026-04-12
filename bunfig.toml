@@ -1,0 +1,66 @@
+# Bun Configuration
+
+[install]
+# Cache directory
+cacheDir = ".bun/cache"
+
+# Lockfile format
+lockfile = "bun.lock"
+
+# Scopes
+[install.scopes]
+# Add scope-specific configurations if needed
+
+[format]
+# Format configuration
+printWidth = 80
+tabWidth = 2
+useTabs = false
+semi = true
+singleQuote = false
+trailingComma = "es5"
+bracketSpacing = true
+bracketSameLine = false
+arrowParens = "always"
+endOfLine = "lf"
+quoteProps = "as-needed"
+
+[lint]
+# Lint configuration
+# Enable/disable rules
+rules = {
+  # TypeScript
+  "@typescript-eslint/no-explicit-any": "warn",
+  "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+  "@typescript-eslint/no-require-imports": "error",
+  
+  # React
+  "react-hooks/rules-of-hooks": "error",
+  "react-hooks/exhaustive-deps": "warn",
+  "react-refresh/only-export-components": "warn",
+  
+  # General
+  "no-console": "warn",
+  "no-debugger": "error",
+  "no-unused-vars": "error",
+  "prefer-const": "error",
+}
+
+# File patterns to include/exclude
+include = ["src/**/*.{ts,tsx,js,jsx}"]
+exclude = ["node_modules/**", "dist/**", "build/**"]
+
+[test]
+# Test configuration
+coverage = true
+coverageThreshold = 80
+coverageDir = "coverage"
+coverageReporters = ["text", "html"]
+
+[run]
+# Runtime configuration
+# Add runtime-specific configurations if needed
+
+[build]
+# Build configuration
+# Add build-specific configurations if needed

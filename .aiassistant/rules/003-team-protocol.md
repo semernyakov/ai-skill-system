@@ -1,6 +1,6 @@
 <!-- PyCharm AI Project Rule -->
 <!-- Source: .ai/rules/003-team-protocol.mdc -->
-<!-- Synced: Sun Apr 12 20:37:05 MSK 2026 -->
+<!-- Synced: Sun Apr 12 22:59:25 MSK 2026 -->
 <!-- Rule type: Always (apply to all files) -->
 
 ---

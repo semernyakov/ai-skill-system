@@ -92,6 +92,23 @@ export const api = {
       if (!response.ok) throw new Error('Failed to delete skill');
       return response;
     },
+    sync: async () => {
+      const response = await fetch(`${API_BASE}/skills/sync/run`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to sync skills');
+      return response.json();
+    },
+    execute: async (id: number, input: any) => {
+      const response = await fetch(`${API_BASE}/skills/${id}/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify(input),
+      });
+      if (!response.ok) throw new Error('Failed to execute skill');
+      return response.json();
+    },
   },
   mcp: {
     listServices: async () => {

@@ -1,25 +1,26 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./.ai/skills/**/*.html",
-    "./.ai/skills/**/*.md",
-    "./.cursor/skills/**/*.html",
-    "./.cursor/skills/**/*.md",
-    "./.windsurf/skills/**/*.html",
-    "./.windsurf/skills/**/*.md",
-    "./src/**/*.html",
+    "./.{ai,cursor,windsurf}/skills/**/*.{html,md}",
+    "./src/**/*.{js,ts,jsx,tsx}",
     "./templates/**/*.html",
   ],
   theme: {
     extend: {
       colors: {
-        // Severity colors
-        'p0': '#ef4444',
-        'p1': '#f59e0b',
-        'p2': '#3b82f6',
-        'p3': '#10b981',
+        severity: {
+          p0: '#ef4444',
+          p1: '#f59e0b',
+          p2: '#3b82f6',
+          p3: '#10b981',
+        },
       },
     },
   },
-  plugins: [],
-}
+  safelist: [
+    {
+      pattern: /(bg|text|border)-severity-(p0|p1|p2|p3)/,
+    },
+  ],
+  plugins: [require('@tailwindcss/typography')],
+};
