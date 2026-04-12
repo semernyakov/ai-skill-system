@@ -1,6 +1,6 @@
 <!-- PyCharm AI Skill Reference -->
 <!-- Source: .ai/skills/system-auditor/SKILL.md -->
-<!-- Synced: Sun Apr 12 20:32:53 MSK 2026 -->
+<!-- Synced: Sun Apr 12 20:37:06 MSK 2026 -->
 <!-- Rule type: Manually (trigger by name) -->
 
 ---
