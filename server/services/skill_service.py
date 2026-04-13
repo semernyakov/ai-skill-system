@@ -24,12 +24,47 @@ class SkillService:
         if active_only:
             query = query.where(SkillDB.active)
         skills = self.session.exec(query).all()
-        return skills
+        result = []
+        for s in skills:
+            try:
+                config = json.loads(s.config) if s.config else {}
+            except json.JSONDecodeError:
+                config = {}
+            result.append(
+                Skill(
+                    id=s.id,
+                    name=s.name,
+                    description=s.description,
+                    config=config,
+                    source=s.source,
+                    version=s.version,
+                    active=s.active,
+                    created_at=s.created_at,
+                    updated_at=s.updated_at
+                )
+            )
+        return result
 
     async def get_skill(self, skill_id: int) -> Skill | None:
         """Get skill by ID"""
         skill = self.session.get(SkillDB, skill_id)
-        return skill
+        if not skill:
+            return None
+        try:
+            config = json.loads(skill.config) if skill.config else {}
+        except json.JSONDecodeError:
+            config = {}
+        return Skill(
+            id=skill.id,
+            name=skill.name,
+            description=skill.description,
+            config=config,
+            source=skill.source,
+            version=skill.version,
+            active=skill.active,
+            created_at=skill.created_at,
+            updated_at=skill.updated_at
+        )
 
     async def create_skill(self, skill_data: SkillCreate) -> Skill:
         """Create new skill"""
@@ -50,7 +85,21 @@ class SkillService:
             self.session.rollback()
             logger.error(f"Failed to create skill: {e}")
             raise
-        return new_skill
+        try:
+            config = json.loads(new_skill.config) if new_skill.config else {}
+        except json.JSONDecodeError:
+            config = {}
+        return Skill(
+            id=new_skill.id,
+            name=new_skill.name,
+            description=new_skill.description,
+            config=config,
+            source=new_skill.source,
+            version=new_skill.version,
+            active=new_skill.active,
+            created_at=new_skill.created_at,
+            updated_at=new_skill.updated_at
+        )
 
     async def update_skill(self, skill_id: int, skill_data: SkillUpdate) -> Skill | None:
         """Update skill"""
@@ -76,7 +125,21 @@ class SkillService:
             self.session.rollback()
             logger.error(f"Failed to update skill: {e}")
             raise
-        return skill
+        try:
+            config = json.loads(skill.config) if skill.config else {}
+        except json.JSONDecodeError:
+            config = {}
+        return Skill(
+            id=skill.id,
+            name=skill.name,
+            description=skill.description,
+            config=config,
+            source=skill.source,
+            version=skill.version,
+            active=skill.active,
+            created_at=skill.created_at,
+            updated_at=skill.updated_at
+        )
 
     async def delete_skill(self, skill_id: int) -> bool:
         """Delete skill"""

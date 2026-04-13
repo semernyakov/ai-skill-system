@@ -17,6 +17,7 @@ from server.api.v1.skills import router as skills_router
 from server.core.config import settings
 from server.core.database import init_db
 from server.core.logging import setup_logging
+from server.db.init_db import migrate_skill_model
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI):
     # Startup
     try:
         init_db()
+        migrate_skill_model()
         logger.info("Database initialized")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")

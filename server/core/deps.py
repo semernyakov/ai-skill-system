@@ -2,8 +2,10 @@
 
 
 from fastapi import Depends
+from sqlmodel import Session
 
 from server.core.config import settings
+from server.core.database import get_session
 from server.core.skill_runner import SkillRunner
 from server.services.rule_service import RuleService
 from server.services.skill_service import SkillService
@@ -14,12 +16,12 @@ def get_settings():
     return settings
 
 
-def get_skill_service(session):
+def get_skill_service(session: Session = Depends(get_session)):
     """Get skill service instance"""
     return SkillService(session)
 
 
-def get_rule_service(session):
+def get_rule_service(session: Session = Depends(get_session)):
     """Get rule service instance"""
     return RuleService(session)
 
