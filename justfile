@@ -141,6 +141,37 @@ mcp-help:
     @echo "🔌 MCP Gateway:"
     @echo "  just mcp-start     - Start MCP Gateway"
 
+# External/Submodule commands
+external-init:
+    #!/usr/bin/env bash
+    echo "📦 Initializing submodules..."
+    git submodule update --init --recursive
+    echo "✅ Submodules initialized"
+
+external-update:
+    #!/usr/bin/env bash
+    echo "📦 Updating submodules to latest..."
+    git submodule update --remote
+    echo "✅ Submodules updated"
+
+external-status:
+    #!/usr/bin/env bash
+    echo "📊 Submodule status:"
+    git submodule status
+
+external-sync:
+    #!/usr/bin/env bash
+    echo "📦 Installing dependencies in submodules..."
+    cd external/agentskills/skills-ref && uv sync
+    echo "✅ Submodule dependencies installed"
+
+external-help:
+    @echo "📦 External/Submodules:"
+    @echo "  just external-init        - Initialize submodules"
+    @echo "  just external-update      - Update submodules to latest"
+    @echo "  just external-status      - Check submodule status"
+    @echo "  just external-sync        - Install submodule dependencies"
+
 # Rules sync commands
 sync-all:
     #!/usr/bin/env bash
@@ -236,7 +267,10 @@ help:
     @echo "  just db-migrate            - Run migrations"
     @echo "  just db-reset              - Reset database (destructive)"
     @echo ""
-    @echo "🔌 MCP Gateway:"
+    @echo "� External/Submodules:"
+    @echo "  just external-help         - External dependency commands"
+    @echo ""
+    @echo "�🔌 MCP Gateway:"
     @echo "  just mcp-help              - MCP commands"
     @echo ""
     @echo "📦 Setup & Maintenance:"
