@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from server.api.v1.auth import router as auth_router
+from server.api.v1.external_skills import router as external_skills_router
 from server.api.v1.logs import router as logs_router
 from server.api.v1.rules import router as rules_router
 from server.api.v1.skills import router as skills_router
@@ -52,6 +53,7 @@ app.add_middleware(
 app.include_router(logs_router)
 app.include_router(rules_router)
 app.include_router(skills_router)
+app.include_router(external_skills_router)
 app.include_router(auth_router)
 
 

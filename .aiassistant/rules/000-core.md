@@ -1,6 +1,6 @@
 <!-- PyCharm AI Project Rule -->
 <!-- Source: .ai/rules/000-core.mdc -->
-<!-- Synced: Mon Apr 13 08:27:59 MSK 2026 -->
+<!-- Synced: Mon Apr 13 08:32:27 MSK 2026 -->
 <!-- Rule type: Always (apply to all files) -->
 
 ---

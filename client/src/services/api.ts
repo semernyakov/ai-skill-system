@@ -172,4 +172,40 @@ export const api = {
       return response.json();
     },
   },
+  externalSkills: {
+    list: async () => {
+      const response = await fetch(`${API_BASE}/external-skills/list`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch external skills');
+      return response.json();
+    },
+    validate: async (skillPath: string) => {
+      const response = await fetch(`${API_BASE}/external-skills/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ skill_path: skillPath }),
+      });
+      if (!response.ok) throw new Error('Failed to validate skill');
+      return response.json();
+    },
+    readProperties: async (skillPath: string) => {
+      const response = await fetch(`${API_BASE}/external-skills/read-properties`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ skill_path: skillPath }),
+      });
+      if (!response.ok) throw new Error('Failed to read skill properties');
+      return response.json();
+    },
+    generatePrompt: async (skillPaths: string[]) => {
+      const response = await fetch(`${API_BASE}/external-skills/to-prompt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ skill_paths: skillPaths }),
+      });
+      if (!response.ok) throw new Error('Failed to generate prompt');
+      return response.json();
+    },
+  },
 };
