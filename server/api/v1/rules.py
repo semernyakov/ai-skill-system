@@ -13,14 +13,13 @@ from server.models.rule import Rule, RuleCreate, RuleUpdate
 router = APIRouter(prefix="/api/v1/rules", tags=["rules"])
 
 
-@router.get("", response_model=list[Rule])
+@router.get("")
 async def list_rules(
     session: Session = Depends(get_session),
     current_user: User | None = Depends(get_current_user),
     rule_service = Depends(get_rule_service)
 ):
-    rules = await rule_service.list_rules()
-    return rules
+    return await rule_service.list_rules()
 
 
 @router.post("", response_model=Rule, status_code=201)

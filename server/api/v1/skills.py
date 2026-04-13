@@ -1,6 +1,5 @@
 """Skills API endpoints with SQLModel and authentication"""
 
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
@@ -12,17 +11,14 @@ from server.models.skill import Skill, SkillCreate, SkillUpdate
 
 router = APIRouter(prefix="/api/v1/skills", tags=["skills"])
 
-@router.get("", response_model=list[Skill])
+
+@router.get("")
 async def list_skills(
-    page: int = 1,
-    limit: int = 50,
     session: Session = Depends(get_session),
     current_user: User | None = Depends(get_current_user),
-    skill_service = Depends(get_skill_service)
+    skill_service = Depends(get_skill_service),
 ):
-    skills = await skill_service.list_skills()
-    offset = (page - 1) * limit
-    return skills[offset:offset + limit]
+    return await skill_service.list_skills()
 
 
 @router.post("", response_model=Skill, status_code=201)

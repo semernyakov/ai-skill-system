@@ -1,6 +1,6 @@
 <!-- PyCharm AI Project Rule -->
 <!-- Source: .ai/rules/005-cicd.mdc -->
-<!-- Synced: Mon Apr 13 08:44:39 MSK 2026 -->
+<!-- Synced: Mon Apr 13 09:03:15 MSK 2026 -->
 <!-- Rule type: Always (apply to all files) -->
 
 ---
