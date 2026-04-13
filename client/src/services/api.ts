@@ -110,33 +110,34 @@ export const api = {
       return response.json();
     },
   },
-  mcp: {
-    listServices: async () => {
-      const response = await fetch(`${API_BASE}/mcp/services`, {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error('Failed to fetch MCP services');
-      return response.json();
-    },
-    startService: async (serviceName: string) => {
-      const response = await fetch(`${API_BASE}/mcp/services/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ service_name: serviceName }),
-      });
-      if (!response.ok) throw new Error('Failed to start service');
-      return response.json();
-    },
-    stopService: async (serviceName: string) => {
-      const response = await fetch(`${API_BASE}/mcp/services/stop`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ service_name: serviceName }),
-      });
-      if (!response.ok) throw new Error('Failed to stop service');
-      return response.json();
-    },
-  },
+  // MCP Gateway commented out - removed during stack simplification
+  // mcp: {
+  //   listServices: async () => {
+  //     const response = await fetch(`${API_BASE}/mcp/services`, {
+  //       headers: getAuthHeaders(),
+  //     });
+  //     if (!response.ok) throw new Error('Failed to fetch MCP services');
+  //     return response.json();
+  //   },
+  //   startService: async (serviceName: string) => {
+  //     const response = await fetch(`${API_BASE}/mcp/services/start`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+  //       body: JSON.stringify({ service_name: serviceName }),
+  //     });
+  //     if (!response.ok) throw new Error('Failed to start service');
+  //     return response.json();
+  //   },
+  //   stopService: async (serviceName: string) => {
+  //     const response = await fetch(`${API_BASE}/mcp/services/stop`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+  //       body: JSON.stringify({ service_name: serviceName }),
+  //     });
+  //     if (!response.ok) throw new Error('Failed to stop service');
+  //     return response.json();
+  //   },
+  // },
   audit: {
     run: async (type: string) => {
       const response = await fetch(`${API_BASE}/audit/run`, {
