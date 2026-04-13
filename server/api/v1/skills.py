@@ -1,9 +1,10 @@
 """Skills API endpoints with SQLModel and authentication"""
 
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
-from server.core.auth import get_current_user, require_role
+from server.core.auth import get_current_user, get_current_user_required, require_role
 from server.core.database import get_session
 from server.core.deps import get_skill_runner, get_skill_service, get_sync_service
 from server.db.models import User, UserRole
@@ -16,7 +17,7 @@ async def list_skills(
     page: int = 1,
     limit: int = 50,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    current_user: User | None = Depends(get_current_user),
     skill_service = Depends(get_skill_service)
 ):
     skills = await skill_service.list_skills()
@@ -39,7 +40,7 @@ async def create_skill(
 async def get_skill(
     skill_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_required),
     skill_service = Depends(get_skill_service)
 ):
     skill = await skill_service.get_skill(skill_id)
@@ -80,7 +81,7 @@ async def execute_skill(
     skill_id: int,
     input_data: dict,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_required),
     skill_runner = Depends(get_skill_runner)
 ):
     """Execute skill with given input"""

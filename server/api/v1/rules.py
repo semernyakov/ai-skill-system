@@ -1,9 +1,10 @@
 """Rules API endpoints with SQLModel and authentication"""
 
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
-from server.core.auth import get_current_user, require_role
+from server.core.auth import get_current_user, get_current_user_required, require_role
 from server.core.database import get_session
 from server.core.deps import get_rule_service
 from server.db.models import User, UserRole
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/api/v1/rules", tags=["rules"])
 @router.get("", response_model=list[Rule])
 async def list_rules(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    current_user: User | None = Depends(get_current_user),
     rule_service = Depends(get_rule_service)
 ):
     rules = await rule_service.list_rules()
@@ -37,7 +38,7 @@ async def create_rule(
 async def get_rule(
     rule_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_required),
     rule_service = Depends(get_rule_service)
 ):
     rule = await rule_service.get_rule(rule_id)

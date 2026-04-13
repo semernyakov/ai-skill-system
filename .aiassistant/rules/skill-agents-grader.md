@@ -1,6 +1,6 @@
 <!-- PyCharm AI Skill Reference -->
 <!-- Source: .ai/skills/agents/grader.md -->
-<!-- Synced: Mon Apr 13 08:40:58 MSK 2026 -->
+<!-- Synced: Mon Apr 13 08:44:39 MSK 2026 -->
 <!-- Rule type: Manually (trigger by name) -->
 
 ---
