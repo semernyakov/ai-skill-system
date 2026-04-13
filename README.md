@@ -57,6 +57,8 @@ Arbitr (Ivan), Дава, Маня, Саша, Кирилл.
 
 ### Guides
 - [System Guide](docs/guides/SYSTEM_GUIDE.md) — Complete system architecture and setup
+- [Skills Guide](docs/guides/SKILLS.md) — Working with AI skills
+- [Submodules Guide](docs/guides/SUBMODULES.md) — Working with Git submodules
 - [Just Guide](docs/guides/JUST_GUIDE.md) — Quick reference for common tasks
 - [API Documentation](docs/API.md) — API endpoints and usage
 
