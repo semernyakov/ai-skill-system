@@ -11,7 +11,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "format": "bun format",
+    "format": "eslint --fix .",
     "preview": "vite preview",
     "test": "vitest"
   },

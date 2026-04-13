@@ -1,6 +1,6 @@
 <!-- PyCharm AI Skill Reference -->
 <!-- Source: .ai/skills/agents/comparator.md -->
-<!-- Synced: Mon Apr 13 08:20:59 MSK 2026 -->
+<!-- Synced: Mon Apr 13 08:24:26 MSK 2026 -->
 <!-- Rule type: Manually (trigger by name) -->
 
 ---
